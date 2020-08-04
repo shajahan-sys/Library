@@ -1,4 +1,4 @@
 package org.library.features.book;
 
-public interface FeatureController {
+public class BookService {
 }

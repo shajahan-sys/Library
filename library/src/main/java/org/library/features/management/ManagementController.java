@@ -1,6 +1,8 @@
 package org.library.features.management;
 
-import org.library.features.book.FeatureController;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 
-public class ManagementController implements FeatureController {
+@WebServlet(urlPatterns = "management")
+public class ManagementController extends HttpServlet {
 }

@@ -1,4 +1,6 @@
 package org.library.features.management;
 
-public class ManagementDAO {
+import org.library.features.DAO;
+
+public interface ManagementDAO extends DAO<Management> {
 }

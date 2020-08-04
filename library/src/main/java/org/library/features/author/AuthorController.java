@@ -1,6 +1,8 @@
 package org.library.features.author;
 
-import org.library.features.book.FeatureController;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 
-public class AuthorController implements FeatureController {
+@WebServlet(urlPatterns = "authors")
+public class AuthorController extends HttpServlet {
 }

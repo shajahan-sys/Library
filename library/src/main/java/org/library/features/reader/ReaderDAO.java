@@ -1,4 +1,6 @@
 package org.library.features.reader;
 
-public class ReaderDAO {
+import org.library.features.DAO;
+
+public interface ReaderDAO extends DAO<Reader> {
 }

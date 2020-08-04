@@ -1,4 +1,6 @@
 package org.library.features.author;
 
-public class AuthorDAO {
+import org.library.features.DAO;
+
+public interface AuthorDAO extends DAO<Author> {
 }

@@ -1,4 +1,6 @@
 package org.library.features.book;
 
-public class BookDAO {
+import org.library.features.DAO;
+
+public interface BookDAO extends DAO<Book> {
 }

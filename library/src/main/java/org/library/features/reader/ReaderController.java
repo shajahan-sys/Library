@@ -1,6 +1,8 @@
 package org.library.features.reader;
 
-import org.library.features.book.FeatureController;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 
-public class ReaderController implements FeatureController {
+@WebServlet(urlPatterns = "readers")
+public class ReaderController extends HttpServlet {
 }

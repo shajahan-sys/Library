@@ -28,6 +28,11 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.13.3'
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.13.3'
+   // https://mvnrepository.com/artifact/javax.servlet/jstl
+    compile group: 'javax.servlet', name: 'jstl', version: '1.2'
+    // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
+    compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+
 // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
  //  testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.5'
    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
