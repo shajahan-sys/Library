@@ -18,7 +18,5 @@
         <mapping class="org.library.features.management.Management" />
         <mapping class="org.library.features.reader.Reader" />
         <mapping class="org.library.features.login.Login" />
-
-
     </session-factory>
 </hibernate-configuration>

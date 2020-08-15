@@ -1,6 +1,7 @@
 package org.library.features.management;
 
 import org.library.features.book.Book;
+import org.library.features.login.Login;
 import org.library.features.reader.Reader;
 
 import javax.persistence.*;
@@ -19,6 +20,9 @@ public class Management {
     @ManyToOne
     @JoinColumn(name = "reader_id", nullable = false)
     private Reader reader;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private Login login;
 
     public Book getBook() {
         return book;
@@ -41,5 +45,13 @@ public class Management {
 
     public void setReturnDate(String returnDate) {
         this.returnDate = returnDate;
+    }
+
+    public Login getLogin() {
+        return login;
+    }
+
+    public void setLogin(Login login) {
+        this.login = login;
     }
 }

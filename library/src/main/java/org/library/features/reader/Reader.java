@@ -1,5 +1,6 @@
 package org.library.features.reader;
 
+import org.library.features.login.Login;
 import org.library.features.management.Management;
 
 import javax.persistence.*;
@@ -17,6 +18,9 @@ public class Reader {
     private String surname;
     @OneToMany(mappedBy = "reader")
     private Set<Management> managements;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private Login login;
 
     public int getId() {
         return id;
@@ -36,5 +40,13 @@ public class Reader {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public Login getLogin() {
+        return login;
+    }
+
+    public void setLogin(Login login) {
+        this.login = login;
     }
 }

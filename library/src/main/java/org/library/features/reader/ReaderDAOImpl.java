@@ -1,5 +1,7 @@
 package org.library.features.reader;
 
+import org.library.features.login.Login;
+
 import java.util.List;
 
 public class ReaderDAOImpl implements ReaderDAO{
@@ -14,7 +16,7 @@ public class ReaderDAOImpl implements ReaderDAO{
     }
 
     @Override
-    public List<Reader> getAll() {
+    public List<Reader> getAll(Login login) {
         return null;
     }
 

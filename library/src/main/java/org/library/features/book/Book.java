@@ -1,6 +1,7 @@
 package org.library.features.book;
 
 import org.library.features.author.Author;
+import org.library.features.login.Login;
 import org.library.features.management.Management;
 
 import javax.persistence.*;
@@ -20,6 +21,10 @@ public class Book {
     private Author author;
     @OneToOne(mappedBy = "book")
     private Management management;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private Login login;
+
     public int getId() {
         return id;
     }
@@ -48,5 +53,21 @@ public class Book {
 
     public void setAuthor(Author author) {
         this.author = author;
+    }
+
+    public Login getLogin() {
+        return login;
+    }
+
+    public void setLogin(Login login) {
+        this.login = login;
+    }
+
+    public Management getManagement() {
+        return management;
+    }
+
+    public void setManagement(Management management) {
+        this.management = management;
     }
 }

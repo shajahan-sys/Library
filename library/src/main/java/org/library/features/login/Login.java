@@ -1,6 +1,12 @@
 package org.library.features.login;
 
+import org.library.features.author.Author;
+import org.library.features.book.Book;
+import org.library.features.management.Management;
+import org.library.features.reader.Reader;
+
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "login")
@@ -12,6 +18,15 @@ public class Login {
     private String userName;
     @Column(name = "password")
     private String password;
+    @OneToMany(mappedBy = "login")
+    private Set<Book> books;
+    @OneToMany(mappedBy = "login")
+    private Set<Author> authors;
+    @OneToMany(mappedBy = "login")
+    private Set<Management> managements;
+    @OneToMany(mappedBy = "login")
+    private Set<Reader> readers;
+
 
     public int getId() {
         return id;
@@ -36,4 +51,5 @@ public class Login {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

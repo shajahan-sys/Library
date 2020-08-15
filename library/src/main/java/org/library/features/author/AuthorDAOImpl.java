@@ -1,5 +1,7 @@
 package org.library.features.author;
 
+import org.library.features.login.Login;
+
 import java.util.List;
 
 public class AuthorDAOImpl implements AuthorDAO{
@@ -14,7 +16,7 @@ public class AuthorDAOImpl implements AuthorDAO{
     }
 
     @Override
-    public List<Author> getAll() {
+    public List<Author> getAll(Login login) {
         return null;
     }
 
