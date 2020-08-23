@@ -25,8 +25,19 @@ public class Book {
     @JoinColumn(name = "user_id", nullable = false)
     private Login login;
 
+    public Book() {
+    }
+
+    public Book(int id) {
+        this.id = id;
+    }
+
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {

@@ -34,17 +34,17 @@ class WelcomeControllerTest {
     }
 
     @Test
-    void test() {
+    void shouldThrowExceptionWhenButtonValueDoesntAlreadyExistInSwitchCase() {
         when(req.getParameter("button")).thenReturn("wrong button name");
         assertThrows(IllegalArgumentException.class, () -> welcomeController.checkWhichButtonWasClicked(req, resp));
     }
     @Test
-    void test1(){
+    void shouldntThrowWhenButtonValueIsProper(){
         when(req.getParameter("button")).thenReturn("Manage lending");
         assertDoesNotThrow(()->welcomeController.checkWhichButtonWasClicked(req, resp));
     }
     @Test
-    void tee() throws IOException {
+    void shouldRedirectToBooksIfButtonValueEqualsBooks() throws IOException {
         when(req.getParameter("button")).thenReturn("Books");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         welcomeController.checkWhichButtonWasClicked(req, resp);

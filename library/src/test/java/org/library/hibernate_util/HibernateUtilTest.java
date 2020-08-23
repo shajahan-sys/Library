@@ -24,7 +24,7 @@ public class HibernateUtilTest {
         }
 
         @AfterAll
-        public static void tearDown() throws Exception {
+        public static void tearDown() {
             session.close();
             sessionFactory.close();
         }

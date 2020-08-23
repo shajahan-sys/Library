@@ -41,13 +41,13 @@ class LogoutControllerTest {
 
 
     @Test
-    void tes() throws IOException {
+    void userLoginAttributeShouldBeNullAfterPostMethod() throws IOException {
         session.setAttribute("userLogin", new Login());
         logoutController.doPost(req, resp);
         assertNull(req.getSession().getAttribute("userLogin"));
     }
     @Test
-    void tee() throws IOException {
+    void shouldRedirectToLogin() throws IOException {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         logoutController.doPost(req, resp);
         verify(resp).sendRedirect(captor.capture());

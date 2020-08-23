@@ -1,6 +1,15 @@
 package org.library.features.book;
 
-import org.library.features.DAO;
+import org.hibernate.SessionFactory;
+import org.library.features.author.Author;
+import org.library.features.login.Login;
 
-public interface BookDAO extends DAO<Book> {
+import java.util.List;
+
+public interface BookDAO {
+    List<Author> getAuthorsList(Login login);
+    void delete(Book book);
+    void setSessionFactory(SessionFactory sessionFactory);
+    List<Book> getBooksList(Login login);
+    void save(Book book);
 }
