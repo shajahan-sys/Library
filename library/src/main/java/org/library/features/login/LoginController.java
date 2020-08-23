@@ -103,11 +103,10 @@ public class LoginController extends HttpServlet {
      * @param req HttpServletRequest object contains parameters (user input) from view
      * @return true if neither userName nor userPassword equals "", otherwise false
      */
-    protected boolean setProperVariables(HttpServletRequest req) {
+    protected void setProperVariables(HttpServletRequest req) {
         userName = req.getParameter("username");
         userPassword = req.getParameter("password");
         value = req.getParameter("command");
-        return !userName.equals("") && !userPassword.equals("");
     }
 
     /**

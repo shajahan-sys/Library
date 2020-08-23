@@ -1,37 +1,96 @@
 package org.library.features.book;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.library.features.author.Author;
 import org.library.features.login.Login;
-import org.library.hibernate_util.HibernateUtil;
 
-import javax.persistence.Query;
 import java.util.List;
 
 public class BookDAOImpl implements BookDAO {
-    @Override
-    public void save(Book object) {
+    private SessionFactory sessionFactory;
 
+    @Override
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
-    public void update(Book object) {
+    public void save(Book book) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            if (book != null) {
+                session.saveOrUpdate(book);
+            }
+            transaction.commit();
 
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     @Override
-    public List<Book> getAll(Login login) {
-       Session session = HibernateUtil.getSessionFactory().openSession();
-       session.getTransaction().begin();
-        List<Book> books = session.createQuery("from Book where user_id = :id")
-                .setParameter("id", login.getId())
-                .getResultList();
-        session.getTransaction().commit();
-        session.close();
+    public List<Book> getBooksList(Login login) {
+        List books;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            books = session.createQuery("from Book where user_id = :id")
+                    .setParameter("id", login.getId())
+                    .getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
         return books;
     }
 
     @Override
-    public Book getOne() {
-        return null;
+    public List<Author> getAuthorsList(Login login) {
+        List authors;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            authors = session.createQuery("from Author where user_id = :id")
+                    .setParameter("id", login.getId())
+                    .getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+        return authors;
+    }
+
+    @Override
+    public void delete(Book book) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.getTransaction();
+            transaction.begin();
+            book = session.get(Book.class, book.getId());
+            if (book != null) {
+                session.delete(book);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 }
