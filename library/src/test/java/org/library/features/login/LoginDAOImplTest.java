@@ -28,7 +28,6 @@ class LoginDAOImplTest {
         sessionFactory = HibernateTestUtil.getTestSessionFactory();
         loginDAO = new LoginDAOImpl();
         loginDAO.setSessionFactory(sessionFactory);
-
     }
 
     @AfterEach
@@ -72,7 +71,6 @@ class LoginDAOImplTest {
         saveProperLogin();
         createProperLogin();
         loginDAO.doesUserAlreadyExist(properLogin);
-        System.out.println(properLogin.getPassword());
         assertTrue(loginDAO.isLoginInputCorrect(properLogin));
         deleteProperLogin();
     }
@@ -91,7 +89,7 @@ class LoginDAOImplTest {
     }
 
     void saveProperLogin() {
-        loginDAO.save(properLogin);
+        loginDAO.saveNewAccount(properLogin);
     }
 
     void deleteProperLogin() {

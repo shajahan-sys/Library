@@ -9,5 +9,4 @@ public interface DAO<T> {
    void save(T object);
    void update(T object);
    List<T> getAll(Login login);
-   T getOne();
 }

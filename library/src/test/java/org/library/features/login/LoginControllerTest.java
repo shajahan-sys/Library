@@ -7,10 +7,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -19,8 +15,7 @@ import static org.mockito.Mockito.when;
 class LoginControllerTest {
     @Mock
     private HttpServletRequest request;
-    @Mock
-    private HttpServletResponse response;
+
     private LoginController loginController;
     private Login properLogin;
     private Login wrongLogin;
@@ -39,30 +34,10 @@ class LoginControllerTest {
     }
 
     @Test
-    void shouldReturnTrueOnlyIfUserProvidedBothParameters() {
-        mockProperLoginData();
-        assertTrue(loginController.isInputProper(request));
-    }
-
-    @Test
-    void shouldReturnFalseWhenThereIsNoLoginProvided() {
-        when(request.getParameter("username")).thenReturn("");
-        when(request.getParameter("password")).thenReturn("pass");
-        assertFalse(loginController.isInputProper(request));
-    }
-
-    @Test
-    void shouldReturnFalseWhenThereIsNoPasswordProvided() {
-        when(request.getParameter("username")).thenReturn("login");
-        when(request.getParameter("password")).thenReturn("");
-        assertFalse(loginController.isInputProper(request));
-    }
-
-    @Test
     void shouldThrowAnExceptionWhenValueIsnt0Or1() {
         mockProperLoginData();
         mockValue("2");
-        loginController.isInputProper(request);
+       loginController.setProperVariables(request);
         assertThrows(IllegalArgumentException.class, () -> loginController.resolveAction(new Login()));
     }
 
@@ -89,10 +64,10 @@ class LoginControllerTest {
     }
 
     @Test
-    void shouldWorkIfValueEquqls0() {
+    void shouldWorkIfValueEquaqls0() {
         mockProperLoginData();
         mockValue("0");
-        loginController.isInputProper(request);
+        loginController.setProperVariables(request);
         assertDoesNotThrow(() -> loginController.isLoginAndPasswordValid());
     }
 
@@ -100,7 +75,7 @@ class LoginControllerTest {
     void shouldWorkIfValueEquals1() {
         mockProperLoginData();
         mockValue("1");
-        loginController.isInputProper(request);
+        loginController.setProperVariables(request);
         assertDoesNotThrow(() -> loginController.isLoginAndPasswordValid());
     }
 
@@ -115,20 +90,8 @@ class LoginControllerTest {
     void shouldThrowExceptionIfValueIsNot0Or1() {
         mockProperLoginData();
         mockValue("3");
-        loginController.isInputProper(request);
+        loginController.setProperVariables(request);
         assertThrows(IllegalArgumentException.class, () -> loginController.isLoginAndPasswordValid());
-    }
-
-    @Test
-    void shouldPrintMessageWhenInputIsntCorrect() throws IOException {
-        when(request.getParameter("username")).thenReturn("");
-        when(request.getParameter("password")).thenReturn("aa");
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        when(response.getWriter()).thenReturn(pw);
-        loginController.doPost(request, response);
-        String result = sw.getBuffer().toString().trim();
-        assertEquals("Provide login and password", result);
     }
 
     void mockProperLoginData() {
@@ -154,6 +117,6 @@ class LoginControllerTest {
         loginController.setLoginService(service);
         mockProperLoginData();
         createWrongAndProperLogin();
-        loginController.isInputProper(request);
+        loginController.setProperVariables(request);
     }
 }

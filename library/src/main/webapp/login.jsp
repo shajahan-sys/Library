@@ -5,13 +5,22 @@
         <title>Login Page</title>
     </head>
     <body>
-      <form action="login" method="post">
+<form name="myForm" action="login" onsubmit="return validateForm()" method="post" required>
             Enter username : <input type="text" name="username"><br>
             Enter password : <input type="password" name="password"><br>
             <INPUT TYPE="radio" name="command" value="0" checked="true"/>Login
             <INPUT TYPE="radio" NAME="command" VALUE="1"/>Create new account<br>
             <INPUT TYPE="submit" VALUE="submit" />
             </form>
-
+            <script>
+            function validateForm() {
+              var x = document.forms["myForm"]["username"].value;
+              var y = document.forms["myForm"]["password"].value;
+              if (x == "" || y == "") {
+                alert("Both fields must be filled out");
+                return false;
+              }
+            }
+    </script>
     </body>
 </html>

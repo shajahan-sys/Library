@@ -4,7 +4,7 @@ import org.hibernate.SessionFactory;
 
 public interface LoginDao {
     boolean isLoginInputCorrect(Login login);
-    void save(Login login);
+    void saveNewAccount(Login login);
     boolean doesUserAlreadyExist(Login login);
     Login getLogin();
     void setVerifier(Verifiable verifiable);

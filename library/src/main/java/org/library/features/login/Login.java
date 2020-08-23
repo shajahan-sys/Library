@@ -8,6 +8,12 @@ import org.library.features.reader.Reader;
 import javax.persistence.*;
 import java.util.Set;
 
+/**
+ * Login POJO class to represent entity Login
+ *
+ * @author Barbara Grabowska
+ * @version %I%
+ */
 @Entity
 @Table(name = "login")
 public class Login {
