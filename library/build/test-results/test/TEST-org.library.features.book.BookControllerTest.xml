@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.library.features.book.BookControllerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-08-28T16:10:31" hostname="USER-KOMPUTER" time="0.498">
+  <properties/>
+  <testcase name="test_filterBooks_when_request_parameter_author2_doesnt_equal_no_author()" classname="org.library.features.book.BookControllerTest" time="0.498"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -36,7 +36,7 @@ class BookDAOImplTest {
     }
 
     @Test
-    void shouldSaveBook() {
+    void shouldSaveBookProperly() {
         createAndSaveAuthor();
         book = new Book();
         book.setLogin(login);
@@ -50,7 +50,10 @@ class BookDAOImplTest {
                 .setParameter("id", login.getId()).getSingleResult();
         session.getTransaction().commit();
         session.close();
-        assertEquals(book.getId(), result.getId());
+        assertAll(
+                () -> assertEquals(book.getId(), result.getId()),
+                () -> assertEquals(book.getLogin().getId(), result.getLogin().getId())
+        );
         deleteLoginAuthorBookFromDB();
     }
 
@@ -77,7 +80,7 @@ class BookDAOImplTest {
     }
 
     @Test
-    void shouldFetchListOfAuthorsFormDB() {
+    void shouldFetchListOfAuthorsThatBelongsToGivenLogin() {
         List<Author> authors = Arrays.asList(
                 new Author(),
                 new Author(),
@@ -92,12 +95,15 @@ class BookDAOImplTest {
         authors.forEach(session::save);
         session.getTransaction().commit();
         session.close();
-        assertEquals(authors.size(), impl.getAuthorsList(login).size());
+        assertAll(
+                () -> assertEquals(authors.size(), impl.getAuthorsList(login).size()),
+                () -> assertEquals(login.getId(), impl.getAuthorsList(login).get(0).getLogin().getId())
+        );
         deleteListOfObjects(authors);
     }
 
     @Test
-    void shouldFetchBookListFromDB() {
+    void shouldDeleteBookFromDB() {
         createAndSaveAuthor();
         Book book = new Book();
         book.setTitle("oki");
@@ -110,7 +116,7 @@ class BookDAOImplTest {
         session.getTransaction().commit();
         session.close();
         impl.delete(book);
-        List<Object> emptyList = new ArrayList();
+        ArrayList emptyList = new ArrayList();
         assertEquals(emptyList.size(), impl.getBooksList(login).size());
         deleteLoginAuthorBookFromDB();
     }
