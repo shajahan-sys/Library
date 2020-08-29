@@ -28,17 +28,20 @@ public class WelcomeController extends HttpServlet {
 
     protected void checkWhichButtonWasClicked(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         switch (req.getParameter("button")) {
-            case "Books":
+            case "books":
                 resp.sendRedirect("books");
                 break;
-            case "Readers":
+            case "readers":
                 resp.sendRedirect("readers");
                 break;
-            case "Authors":
+            case "authors":
                 resp.sendRedirect("authors");
                 break;
-            case "Manage lending":
-                resp.sendRedirect("management");
+            case "lend book":
+                resp.sendRedirect("/lending");
+                break;
+            case "return book":
+                resp.sendRedirect("/return-book");
                 break;
             default:
                 throw new IllegalArgumentException("Wrong button value!");

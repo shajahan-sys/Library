@@ -16,10 +16,11 @@
     Welcome ${userLogin.getUserName()}!
      <br>
       <form action="welcome" method="post">
-           <INPUT TYPE="submit" NAME = "button" VALUE="Books" />
-           <INPUT TYPE="submit" NAME = "button" VALUE="Readers" />
-           <INPUT TYPE="submit" NAME = "button" VALUE="Authors" />
-           <INPUT TYPE="submit" NAME = "button" VALUE="Manage lending" />
+           <INPUT TYPE="submit" NAME = "button" VALUE="books" />
+           <INPUT TYPE="submit" NAME = "button" VALUE="readers" />
+           <INPUT TYPE="submit" NAME = "button" VALUE="authors" />
+           <INPUT TYPE="submit" NAME = "button" VALUE="lend book" />
+           <INPUT TYPE="submit" NAME = "button" VALUE="return book" />
             </form>
             <form action="logout" method="post"><br>
                    <input type="submit" name="button" value="logout">

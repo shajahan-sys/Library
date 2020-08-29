@@ -15,7 +15,7 @@
         <property name="hbm2ddl.auto">update</property>
         <mapping class="org.library.features.author.Author" />
         <mapping class="org.library.features.book.Book" />
-        <mapping class="org.library.features.management.Management" />
+        <mapping class="org.library.features.lending.Lending" />
         <mapping class="org.library.features.reader.Reader" />
         <mapping class="org.library.features.login.Login" />
     </session-factory>

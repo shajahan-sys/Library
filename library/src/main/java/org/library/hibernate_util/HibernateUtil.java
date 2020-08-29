@@ -8,7 +8,7 @@ import org.hibernate.cfg.Configuration;
 import org.library.features.author.Author;
 import org.library.features.book.Book;
 import org.library.features.login.Login;
-import org.library.features.management.Management;
+import org.library.features.lending.Lending;
 import org.library.features.reader.Reader;
 
 public class HibernateUtil {
@@ -19,7 +19,7 @@ public class HibernateUtil {
         Configuration configuration = new Configuration().configure();
         configuration.addAnnotatedClass(Author.class);
         configuration.addAnnotatedClass(Book.class);
-        configuration.addAnnotatedClass(Management.class);
+        configuration.addAnnotatedClass(Lending.class);
         configuration.addAnnotatedClass(Reader.class);
         configuration.addAnnotatedClass(Login.class);
         StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
