@@ -43,7 +43,7 @@ class BookDAOImplTest {
         book.setPublicationYear("2012");
         book.setAuthor(author);
         book.setTitle("Test");
-        impl.save(book);
+//        impl.save(book);
         Session session = sessionFactory.openSession();
         session.getTransaction().begin();
         Book result = (Book) session.createQuery("from Book where user_id = :id")

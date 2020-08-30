@@ -17,28 +17,10 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
-    public void save(Book book) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            if (book != null) {
-                session.saveOrUpdate(book);
-            }
-            transaction.commit();
-
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        }
-    }
-
-    @Override
     public List<Book> getBooksList(Login login) {
         List books;
         Transaction transaction = null;
+
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();

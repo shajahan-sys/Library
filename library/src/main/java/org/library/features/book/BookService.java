@@ -5,6 +5,7 @@ import org.library.features.login.Login;
 import org.library.hibernate_util.HibernateUtil;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 public class BookService {
@@ -21,24 +22,10 @@ public class BookService {
     protected List<Author> getAuthorsList(Login login) {
         initializeDAO();
         return bookDAO.getAuthorsList(login);
-    }
+     }
 
     protected Book getBook(Book book) {
-        editBook = allBooks.stream().filter(book1 -> book1.getId() == book.getId()).findAny().orElse(null);
-        return editBook;
-    }
-
-    protected void saveBook(Book book) {
-        initializeDAO();
-        if (editBook != null) {
-            book.setId(editBook.getId());
-            editBook = null;
-        }
-        bookDAO.save(book);
-    }
-
-    protected void setEditBookToNull() {
-        editBook = null;
+        return allBooks.stream().filter(book1 -> book1.getId() == book.getId()).findAny().orElse(null);
     }
 
     protected List<Book> filterBooks(Book book) {

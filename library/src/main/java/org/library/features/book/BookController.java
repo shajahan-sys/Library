@@ -2,7 +2,7 @@ package org.library.features.book;
 
 import org.library.features.author.Author;
 import org.library.features.login.Login;
-import org.library.features.management.Management;
+import org.library.features.lending.Lending;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,6 +19,7 @@ public class BookController extends HttpServlet {
     private List<Book> filteredBooks;
     private Login login;
     private Book book;
+    private List<Author> authors;
 
 
     @Override
@@ -26,9 +27,6 @@ public class BookController extends HttpServlet {
         login = (Login) req.getSession().getAttribute("userLogin");
         if (login != null) {
             initializeBookService();
-            if (req.getParameter("button") != null && req.getParameter("button").equals("cancel")) {
-                bookService.setEditBookToNull();
-            }
             setProperListOfAuthors(req);
             setProperListOfBooks(req);
             req.getRequestDispatcher("book.jsp").forward(req, resp);
@@ -45,20 +43,22 @@ public class BookController extends HttpServlet {
         switch (req.getParameter("button")) {
             case "edit":
                 resolveEdit(req);
-                doGet(req, resp);
+                resp.sendRedirect("add-edit-book");
                 break;
             case "delete":
                 resolveDelete(req);
                 doGet(req, resp);
                 break;
-            case "save":
-                resolveSave(req);
-                doGet(req, resp);
+            case "lend":
+                resolveLend(req);
+                resp.sendRedirect("lending");
                 break;
-            case "manage":
-                resolveManage(req);
-                resp.sendRedirect("management");
+            case "return":
+                resolveReturn(req);
+                resp.sendRedirect("return-book");
                 break;
+            case "add new":
+                resp.sendRedirect("add-edit-book");
             case "logout":
                 resp.sendRedirect("logout");
                 break;
@@ -69,7 +69,7 @@ public class BookController extends HttpServlet {
 
     protected void setProperListOfBooks(HttpServletRequest req) {
         List<Book> books = bookService.getBooksList(login);
-        if (req.getParameter("button") == null || !req.getParameter("button").equals("search")) {
+        if (req.getParameter("button") == null) {
             setManagementValueIfDoesntExist(books);
             req.setAttribute("books", books);
         } else if (req.getParameter("button").equals("search")) {
@@ -80,7 +80,7 @@ public class BookController extends HttpServlet {
     }
 
     protected void setProperListOfAuthors(HttpServletRequest req) {
-        List<Author> authors = bookService.getAuthorsList(login);
+        authors = bookService.getAuthorsList(login);
         req.setAttribute("authors", authors);
     }
 
@@ -92,33 +92,28 @@ public class BookController extends HttpServlet {
 
     protected void setManagementValueIfDoesntExist(List<Book> bookList) {
         bookList.forEach(book -> {
-            if (book.getManagement() == null) {
-                book.setManagement(new Management());
-                book.getManagement().setReturnDate("available");
+            if (book.getLending() == null) {
+                book.setLending(new Lending());
+                book.getLending().setReturnDate("available");
             }
         });
     }
 
+    void resolveReturn(HttpServletRequest req) {
+        req.getSession().setAttribute("reader", bookService.getBook(new Book(Integer.parseInt(req.getParameter("selected")))).getLending().getReader());
+    }
+
     void resolveEdit(HttpServletRequest req) {
-        req.setAttribute("edit", bookService.getBook(new Book(Integer.parseInt(req.getParameter("selected")))));
+        req.getSession().setAttribute("edit", bookService.getBook(new Book(Integer.parseInt(req.getParameter("selected")))));
+        req.getSession().setAttribute("authors", authors);
     }
 
     void resolveDelete(HttpServletRequest req) {
         bookService.deleteBook(new Book(Integer.parseInt(req.getParameter("selected"))));
     }
 
-    void resolveSave(HttpServletRequest req) {
-        book = new Book();
-        book.setTitle(req.getParameter("editTitle"));
-        book.setAuthor(new Author(Integer.parseInt(req.getParameter("author1"))));
-        book.setPublicationYear(req.getParameter("year"));
-        book.setLogin(login);
-        bookService.saveBook(book);
-    }
-
-    void resolveManage(HttpServletRequest req) {
-        req.getSession().setAttribute("manageBook", bookService.getBook(new Book(Integer.parseInt(req.getParameter("selected")))));
-        bookService.setEditBookToNull();
+    void resolveLend(HttpServletRequest req) {
+        req.getSession().setAttribute("lend", bookService.getBook(new Book(Integer.parseInt(req.getParameter("selected")))));
     }
 
     protected void filterBooks(HttpServletRequest req) {

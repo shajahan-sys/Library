@@ -2,7 +2,7 @@ package org.library.features.login;
 
 import org.library.features.author.Author;
 import org.library.features.book.Book;
-import org.library.features.management.Management;
+import org.library.features.lending.Lending;
 import org.library.features.reader.Reader;
 
 import javax.persistence.*;
@@ -29,7 +29,7 @@ public class Login {
     @OneToMany(mappedBy = "login")
     private Set<Author> authors;
     @OneToMany(mappedBy = "login")
-    private Set<Management> managements;
+    private Set<Lending> lendings;
     @OneToMany(mappedBy = "login")
     private Set<Reader> readers;
 

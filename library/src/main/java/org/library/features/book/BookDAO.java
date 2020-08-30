@@ -11,5 +11,4 @@ public interface BookDAO {
     void delete(Book book);
     void setSessionFactory(SessionFactory sessionFactory);
     List<Book> getBooksList(Login login);
-    void save(Book book);
 }

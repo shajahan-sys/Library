@@ -6,10 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.library.features.author.Author;
 import org.library.features.login.Login;
-import org.library.features.management.Management;
+import org.library.features.lending.Lending;
+import org.library.features.reader.Reader;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -27,7 +29,7 @@ import static org.mockito.Mockito.*;
 class BookControllerTest {
     private BookController bookController;
     private List<Book> bookList;
-    @Mock
+    @Spy
     HttpSession session;
     @Mock
     private HttpServletRequest req;
@@ -35,17 +37,20 @@ class BookControllerTest {
     private BookService bookService = mock(BookService.class);
     @Mock
     HttpServletResponse resp;
+    private final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         bookController = new BookController();
+        //  captor ;
     }
 
     @AfterEach
     void tearDown() {
         bookController = null;
         bookService = null;
+        //  captor = null;
     }
 
     @Test
@@ -54,7 +59,6 @@ class BookControllerTest {
         when(req.getParameter("button")).thenReturn("manage");
         when(req.getParameter("selected")).thenReturn("1");
         bookController.setBookService(bookService);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         bookController.doPost(req, resp);
         verify(resp).sendRedirect(captor.capture());
         assertEquals("management", captor.getValue());
@@ -64,7 +68,6 @@ class BookControllerTest {
     void test_doPost_when_logout_button_was_clicked() throws ServletException, IOException {
         when(req.getParameter("button")).thenReturn("logout");
         bookController.setBookService(bookService);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         bookController.doPost(req, resp);
         verify(resp).sendRedirect(captor.capture());
         assertEquals("logout", captor.getValue());
@@ -79,7 +82,6 @@ class BookControllerTest {
     @Test
     void test_doGet_when_session_attribute_userLogin_is_null() {
         when(req.getSession()).thenReturn(session);
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         assertAll(
                 () -> assertDoesNotThrow(() -> bookController.doGet(req, resp)),
                 () -> verify(resp).sendRedirect(captor.capture()),
@@ -92,58 +94,29 @@ class BookControllerTest {
         when(req.getSession()).thenReturn(session);
         RequestDispatcher rd = mock(RequestDispatcher.class);
         when(req.getSession().getAttribute("userLogin")).thenReturn(new Login());
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        when(req.getRequestDispatcher(captor.capture())).thenReturn(rd);
-        bookController.setBookService(bookService);
-        bookController.doGet(req, resp);
-        verify(req).getRequestDispatcher(captor.capture());
-        assertEquals("book.jsp", captor.getValue());
-    }
-
-    @Test
-    void test_doGet_when_request_parameter_button_equals_cancel() throws ServletException, IOException {
-        when(req.getSession()).thenReturn(session);
-        when(req.getParameter("button")).thenReturn("cancel");
-        RequestDispatcher rd = mock(RequestDispatcher.class);
-        when(req.getSession().getAttribute("userLogin")).thenReturn(new Login());
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         when(req.getRequestDispatcher(captor.capture())).thenReturn(rd);
         bookController.setBookService(bookService);
         bookController.doGet(req, resp);
         assertAll(
-                () -> verify(bookService).setEditBookToNull(),
                 () -> verify(req).getRequestDispatcher(captor.capture()),
                 () -> assertEquals("book.jsp", captor.getValue())
         );
     }
-
 
     @Test
     void test_setManagementValueIfDoesntExist() {
         List<Book> list1 = getBookList();
         List<Book> list2 = getBookList();
         list2.forEach(book -> {
-            if (book.getManagement() == null) {
-                book.setManagement(new Management());
-                book.getManagement().setReturnDate("available");
+            if (book.getLending() == null) {
+                book.setLending(new Lending());
+                book.getLending().setReturnDate("available");
             }
         });
         bookController.setManagementValueIfDoesntExist(list1);
         assertAll(
                 () -> assertEquals(list1.get(1).getId(), list2.get(1).getId()),
-                () -> assertEquals(list1.get(1).getManagement().getReturnDate(), list2.get(1).getManagement().getReturnDate())
-        );
-    }
-
-    @Test
-    void test_resolveSave() {
-        when(req.getParameter("editTitle")).thenReturn("Title");
-        when(req.getParameter("author1")).thenReturn("1");
-        when(req.getParameter("year")).thenReturn("2020");
-        bookController.setBookService(bookService);
-        assertAll(
-                () -> assertDoesNotThrow(() -> bookController.resolveSave(req)),
-                () -> verify(bookService).saveBook(any(Book.class))
+                () -> assertEquals(list1.get(1).getLending().getReturnDate(), list2.get(1).getLending().getReturnDate())
         );
     }
 
@@ -186,16 +159,41 @@ class BookControllerTest {
         bookController.resolveDelete(req);
         verify(bookService).deleteBook(any(Book.class));
     }
+
     @Test
-    void test_resolveEdit(){
+    void test_resolveEdit() {
         Book book = new Book(1);
-          when(req.getParameter("selected")).thenReturn("1");
+        when(req.getParameter("selected")).thenReturn("1");
         when(bookService.getBook(any(Book.class))).thenReturn(book);
         bookController.setBookService(bookService);
         bookController.resolveEdit(req);
         verify(req).setAttribute("edit", book);
 
     }
+    @Test
+    void test_resolveReturn(){
+        Reader myReader = new Reader(1);
+        Book book = new Book(1);
+        book.setLending(new Lending());
+        book.getLending().setReader(myReader);
+        when(req.getSession()).thenReturn(session);
+        when(req.getParameter("selected")).thenReturn("1");
+        when(bookService.getBook(any(Book.class))).thenReturn(book);
+        bookController.setBookService(bookService);
+        bookController.resolveReturn(req);
+        verify(session).setAttribute("reader", myReader);
+    }
+    @Test
+    void test_resolveLend(){
+        Book book = new Book(1);
+        when(req.getSession()).thenReturn(session);
+        when(req.getParameter("selected")).thenReturn("1");
+        when(bookService.getBook(any(Book.class))).thenReturn(book);
+        bookController.setBookService(bookService);
+        bookController.resolveLend(req);
+        verify(session).setAttribute("lend", book);
+    }
+
     @Test
     void test_filterBooks_when_request_parameter_author2_equals_no_author() {
         when(req.getParameter("searchTitle")).thenReturn("ww");
@@ -204,8 +202,9 @@ class BookControllerTest {
         bookController.filterBooks(req);
         verify(bookService).filterBooks(any(Book.class));
     }
+
     @Test
-    void test_filterBooks_when_request_parameter_author2_doesnt_equal_no_author(){
+    void test_filterBooks_when_request_parameter_author2_doesnt_equal_no_author() {
         when(req.getParameter("searchTitle")).thenReturn("ww");
         when(req.getParameter("author2")).thenReturn("2");
         bookController.setBookService(bookService);
@@ -216,15 +215,17 @@ class BookControllerTest {
         );
     }
 
-    @Test
+ /*   @Test
     void test_resolve_manage() {
         createBookList();
         when(req.getSession()).thenReturn(session);
         when(req.getParameter("selected")).thenReturn("1");
         bookController.setBookService(bookService);
-        bookController.resolveManage(req);
+        bookController.resolveLend(req);
         verify(bookService).setEditBookToNull();
     }
+
+  */
 
     private void createBookList() {
         bookList = Arrays.asList(

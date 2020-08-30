@@ -2,9 +2,11 @@ package org.library.features.book;
 
 import org.library.features.author.Author;
 import org.library.features.login.Login;
-import org.library.features.management.Management;
+import org.library.features.lending.Lending;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "books")
@@ -20,7 +22,7 @@ public class Book {
     @JoinColumn(name = "author_id", nullable = false)
     private Author author;
     @OneToOne(mappedBy = "book")
-    private Management management;
+    private Lending lending;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Login login;
@@ -30,6 +32,7 @@ public class Book {
 
     public Book(int id) {
         this.id = id;
+        List l = new ArrayList();
     }
 
     public int getId() {
@@ -74,11 +77,11 @@ public class Book {
         this.login = login;
     }
 
-    public Management getManagement() {
-        return management;
+    public Lending getLending() {
+        return lending;
     }
 
-    public void setManagement(Management management) {
-        this.management = management;
+    public void setLending(Lending lending) {
+        this.lending = lending;
     }
 }
