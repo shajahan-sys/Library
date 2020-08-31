@@ -35,7 +35,7 @@ class BookDAOImplTest {
         impl = null;
     }
 
-    @Test
+  /*  @Test
     void shouldSaveBookProperly() {
         createAndSaveAuthor();
         book = new Book();
@@ -56,6 +56,8 @@ class BookDAOImplTest {
         );
         deleteLoginAuthorBookFromDB();
     }
+
+   */
 
     @Test
     void shouldFetchProperListOfBooksFormDB() {

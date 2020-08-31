@@ -39,29 +39,29 @@ class BookControllerTest {
     HttpServletResponse resp;
     private final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
+    // TODO add setProperAttributesForwardRequest test, doPost tests, when different buttons were clicked
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         bookController = new BookController();
-        //  captor ;
     }
 
     @AfterEach
     void tearDown() {
         bookController = null;
         bookService = null;
-        //  captor = null;
     }
 
     @Test
-    void test_doPost_when_manage_button_was_clicked() throws IOException, ServletException {
-        when(req.getSession()).thenReturn(session);
-        when(req.getParameter("button")).thenReturn("manage");
+    void test_doPost_when_lend_button_was_clicked() throws IOException, ServletException {
+        when(req.getParameter("button")).thenReturn("lend");
         when(req.getParameter("selected")).thenReturn("1");
+        bookController.setSession(session);
         bookController.setBookService(bookService);
         bookController.doPost(req, resp);
         verify(resp).sendRedirect(captor.capture());
-        assertEquals("management", captor.getValue());
+        assertEquals("lending", captor.getValue());
     }
 
     @Test
@@ -81,7 +81,7 @@ class BookControllerTest {
 
     @Test
     void test_doGet_when_session_attribute_userLogin_is_null() {
-        when(req.getSession()).thenReturn(session);
+        bookController.setSession(session);
         assertAll(
                 () -> assertDoesNotThrow(() -> bookController.doGet(req, resp)),
                 () -> verify(resp).sendRedirect(captor.capture()),
@@ -91,10 +91,11 @@ class BookControllerTest {
 
     @Test
     void test_doGet_when_userLogin_exists_but_request_parameter_button_doesnt() throws ServletException, IOException {
-        when(req.getSession()).thenReturn(session);
+
         RequestDispatcher rd = mock(RequestDispatcher.class);
-        when(req.getSession().getAttribute("userLogin")).thenReturn(new Login());
+        when(session.getAttribute("userLogin")).thenReturn(new Login());
         when(req.getRequestDispatcher(captor.capture())).thenReturn(rd);
+        bookController.setSession(session);
         bookController.setBookService(bookService);
         bookController.doGet(req, resp);
         assertAll(
@@ -165,10 +166,10 @@ class BookControllerTest {
         Book book = new Book(1);
         when(req.getParameter("selected")).thenReturn("1");
         when(bookService.getBook(any(Book.class))).thenReturn(book);
+        bookController.setSession(session);
         bookController.setBookService(bookService);
         bookController.resolveEdit(req);
-        verify(req).setAttribute("edit", book);
-
+        verify(session).setAttribute("edit", book);
     }
     @Test
     void test_resolveReturn(){
@@ -176,9 +177,9 @@ class BookControllerTest {
         Book book = new Book(1);
         book.setLending(new Lending());
         book.getLending().setReader(myReader);
-        when(req.getSession()).thenReturn(session);
         when(req.getParameter("selected")).thenReturn("1");
         when(bookService.getBook(any(Book.class))).thenReturn(book);
+        bookController.setSession(session);
         bookController.setBookService(bookService);
         bookController.resolveReturn(req);
         verify(session).setAttribute("reader", myReader);
@@ -186,9 +187,9 @@ class BookControllerTest {
     @Test
     void test_resolveLend(){
         Book book = new Book(1);
-        when(req.getSession()).thenReturn(session);
         when(req.getParameter("selected")).thenReturn("1");
         when(bookService.getBook(any(Book.class))).thenReturn(book);
+        bookController.setSession(session);
         bookController.setBookService(bookService);
         bookController.resolveLend(req);
         verify(session).setAttribute("lend", book);

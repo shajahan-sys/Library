@@ -1,3 +1,0 @@
-UHibernate: select login0_.password as col_0_0_ from login login0_ where user_name=?
-UHibernate: select login0_.password as col_0_0_ from login login0_ where user_name=?
-OHibernate: select login0_.id as col_0_0_ from login login0_ where user_name=?

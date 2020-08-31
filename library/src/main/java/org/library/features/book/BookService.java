@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 public class BookService {
     private BookDAO bookDAO;
     private List<Book> allBooks;
-    private Book editBook;
 
     protected List<Book> getBooksList(Login login) {
         initializeDAO();

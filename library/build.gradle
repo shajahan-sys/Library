@@ -6,7 +6,6 @@ plugins {
 
 group 'org.library'
 version '1.0-SNAPSHOT'
-sourceCompatibility = 12
 
 repositories {
     mavenCentral()
@@ -47,4 +46,5 @@ dependencies {
 }
 test {
     useJUnitPlatform()
+    testLogging.showStandardStreams = (System.getenv('PRINTF_DEBUG') != null)
 }
