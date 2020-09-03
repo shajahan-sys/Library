@@ -1,9 +1,5 @@
 package org.library.features.login;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.library.hibernate_util.HibernateUtil;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Controller class which is a Servlet implementation
@@ -20,10 +17,9 @@ import java.io.IOException;
  */
 @WebServlet(urlPatterns = {"login"})
 public class LoginController extends HttpServlet {
-    private String value;
-    private String userName;
-    private String userPassword;
+    private String action;
     private LoginService loginService;
+    private Login login;
 
 
     @Override
@@ -33,80 +29,73 @@ public class LoginController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-           setProperVariables(req);
-            sendRedirectIfInputIsCorrect(req, resp);
-    }
-
-    /**
-     * If isLoginAndPasswordValid method returns true this method creates HttpSession object and sets attribute
-     * named userLogin to value of LoginService class method getLogin. Next sends redirect using response
-     * to BookController class. If isLoginAndPasswordValid returns false this method uses PrintWriter object
-     * to send String message to client.
-     *
-     * @param req
-     * @param resp
-     * @throws IOException
-     */
-    protected void sendRedirectIfInputIsCorrect(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setProperData(req);
         if (isLoginAndPasswordValid()) {
             HttpSession session = req.getSession();
             session.setAttribute("userLogin", loginService.getLogin());
             resp.sendRedirect("welcome");
         } else {
-            resp.getWriter().println(loginService.getMessage());
+            printMessage(resp);
         }
     }
 
     /**
-     * Checks if variable value equals to 0 or 1, if not then throws IllegalArgumentException.
+     * Creates PrintWriter object and uses it to print specified Strings. These Strings
+     * should display an alert box (in login.jsp) with a message that is returned by a
+     * LoginService class getMessage method.
+     *
+     * @param resp HttpServletResponse object is used to create PrintWriter object
+     * @throws IOException
+     */
+
+    protected void printMessage(HttpServletResponse resp) throws IOException {
+        PrintWriter out = resp.getWriter();
+        out.println("<script type=\"text/javascript\">");
+        out.println("alert('" + loginService.getMessage() + "');");
+        out.println("location='login.jsp';");
+        out.println("</script>");
+    }
+
+    /**
+     * Checks if variable value equals 0 or 1, if not then throws IllegalArgumentException.
      * If value equals to 0 this method calls LoginService class method to check if it is possible to
      * login to proper account based on data stored in login object.
      * If value equals to 1 this method calls Login Service class method to check if it is possible to
      * create new account using data stored in given login object.
      *
-     * @param login Login object stores username and password
      * @return true if user was successfully signed-in when value equals to 0, or new account was successfully
      * saved when value equals to 1, otherwise false
      */
-    protected boolean resolveAction(Login login) {
-        if (loginService == null) {
-            loginService = new LoginService();
-        }
-        if (value.equals("0")) {
-            return loginService.loginToProperAccount(login);
-        } else if (value.equals("1")) {
-            return loginService.createNewAccount(login);
-        } else {
-            throw new IllegalArgumentException("Wrong value! Value should equal to 0 or 1");
+    protected boolean isLoginAndPasswordValid() {
+        initializeLoginService();
+        switch (action) {
+            case "login":
+                return loginService.loginToProperAccount(login);
+            case "create":
+                return loginService.createNewAccount(login);
+            default:
+                throw new IllegalArgumentException("Wrong value! Value should equal to 0 or 1");
         }
     }
 
     /**
-     * First creates new Login instance, sets this login username to instance variable userName
-     * and password to variable userPassword and then passes this login to resolveAction method and
-     * returns its boolean value
-     *
-     * @return true if resolveAction method returns true, false if resolveAction returns false
+     * Creates Login object, sets its username to request parameter "username" value
+     * and password to request parameter "password" value. Assigns request parameter
+     * "command" value to action variable
      */
-    protected boolean isLoginAndPasswordValid() {
-        Login login = new Login();
-        login.setUserName(userName);
-        login.setPassword(userPassword);
-        return resolveAction(login);
+    protected void setProperData(HttpServletRequest req) {
+        if (login == null) {
+            login = new Login();
+        }
+        login.setUserName(req.getParameter("username"));
+        login.setPassword(req.getParameter("password"));
+        action = req.getParameter("command");
     }
 
-    /*
-     * Checks if login data collected from user is correct - both fields were filed in.
-     * Assigns instance variables - userName, userPassword and value to parameters provided by
-     * HttpServletRequest object
-     *
-     * @param req HttpServletRequest object contains parameters (user input) from view
-     * @return true if neither userName nor userPassword equals "", otherwise false
-     */
-    protected void setProperVariables(HttpServletRequest req) {
-        userName = req.getParameter("username");
-        userPassword = req.getParameter("password");
-        value = req.getParameter("command");
+    private void initializeLoginService() {
+        if (loginService == null) {
+            loginService = new LoginService();
+        }
     }
 
     /**
