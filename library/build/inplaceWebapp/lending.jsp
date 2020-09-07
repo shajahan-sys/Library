@@ -23,7 +23,7 @@
                 }
                 %>
             <div align="left">
-                           <form action="lending" method="post">
+                           <form name="myForm" action="lending" method="post">
                               Book : <select name="book" id="1">
                                                     <option value="no book" >select book</option>
                                                       <c:forEach var="book" items="${books}" >
@@ -45,10 +45,22 @@
                                         </c:forEach>
                                       </select><br>
                                 Return Date : <input type="text" name="date"><br>
-
                           <INPUT TYPE="submit" name="button" VALUE="cancel"/>
-                          <INPUT TYPE="submit" name="button" VALUE="lend"/>
+                          <INPUT TYPE="submit" name="button"  onclick="return validateForm()" VALUE="lend"/>
                       </form>
                             </div>
+                     <script>
+                    function validateForm() {
+                       var e = document.getElementById("1");
+                       var f = document.getElementById("2");
+                       var selBook = e.options[e.selectedIndex].value;
+                       var selReader = f.options[f.selectedIndex].value;
+                        var x = document.forms["myForm"]["date"].value;
+                        if (x == "" || selReader == "select reader" || selBook == "select book") {
+                          alert("Fill in all fields!");
+                          return false;
+                        }
+                      }
+                  </script>
          </body>
 </html
