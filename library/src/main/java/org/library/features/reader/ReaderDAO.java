@@ -1,6 +1,15 @@
 package org.library.features.reader;
 
-import org.library.features.DAO;
+import org.hibernate.SessionFactory;
+import org.library.features.book.Book;
+import org.library.features.lending.Lending;
+import org.library.features.login.Login;
 
-public interface ReaderDAO extends DAO<Reader> {
+import java.util.List;
+
+public interface ReaderDAO {
+    void setSessionFactory(SessionFactory sessionFactory);
+    List<Reader> getReadersList(Login login);
+    void delete(Reader reader);
+
 }
