@@ -14,11 +14,22 @@ public class Author {
     private int id;
     @Column(name = "surname")
     private String surname;
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
     private Set<Book> books;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Login login;
+
+    public Author() {
+    }
+
+    public Author(int id) {
+        this.id = id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public int getId() {
         return id;
