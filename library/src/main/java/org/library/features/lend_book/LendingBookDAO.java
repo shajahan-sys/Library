@@ -1,4 +1,4 @@
-package org.library.features.lending;
+package org.library.features.lend_book;
 
 import org.hibernate.SessionFactory;
 import org.library.features.book.Book;
@@ -7,14 +7,14 @@ import org.library.features.reader.Reader;
 
 import java.util.List;
 
-public interface LendingDAO {
+public interface LendBookDAO {
     void setSessionFactory(SessionFactory sessionFactory);
 
     List<Reader> getReadersList(Login login);
 
     List<Book> getAvailableBooksList(Login login);
 
-    void save(Lending lending);
+    void save(LendBook lendBook);
 
 
 }

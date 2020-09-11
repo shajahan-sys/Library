@@ -14,16 +14,16 @@
                 if(session.getAttribute("userLogin")==null){
                 response.sendRedirect("login.jsp");
                 }
-                boolean isEdited = false;
+                boolean isReaderSelected = false;
                 if(request.getAttribute("selReader") != null)
-                {isEdited = true;}
+                {isReaderSelected = true;}
                 boolean isBookSelected = false;
                 if(request.getAttribute("selBook") != null){
                 isBookSelected = true;
                 }
                 %>
             <div align="left">
-                           <form action="lending" method="post">
+                           <form name="myForm" action="lending" method="post">
                               Book : <select name="book" id="1">
                                                     <option value="no book" >select book</option>
                                                       <c:forEach var="book" items="${books}" >
@@ -38,17 +38,29 @@
                                      <option value="no reader" >select reader</option>
                                        <c:forEach var="reader" items="${readers}" >
                                           <option value="${reader.getId()}"
-                                          <%if(isEdited){%>
+                                          <%if(isReaderSelected){%>
                                           ${reader.getId() == selReader.getId() ? 'selected="selected"' : ''}<%}%>>
                                          ${reader.getSurname()} ${reader.getName()}
                                           </option>
                                         </c:forEach>
                                       </select><br>
                                 Return Date : <input type="text" name="date"><br>
-
                           <INPUT TYPE="submit" name="button" VALUE="cancel"/>
-                          <INPUT TYPE="submit" name="button" VALUE="lend"/>
+                          <INPUT TYPE="submit" name="button"  onclick="return validateForm()" VALUE="lend"/>
                       </form>
                             </div>
+                     <script>
+                    function validateForm() {
+                       var e = document.getElementById("1");
+                       var f = document.getElementById("2");
+                       var selBook = e.options[e.selectedIndex].value;
+                       var selReader = f.options[f.selectedIndex].value;
+                        var x = document.forms["myForm"]["date"].value;
+                        if (x == "" || selReader == "select reader" || selBook == "select book") {
+                          alert("Fill in all fields!");
+                          return false;
+                        }
+                      }
+                  </script>
          </body>
 </html

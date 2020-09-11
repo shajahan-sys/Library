@@ -1,4 +1,4 @@
-package org.library.features.lending;
+package org.library.features.lend_book;
 
 import org.library.features.book.Book;
 import org.library.features.login.Login;
@@ -8,33 +8,33 @@ import org.library.hibernate_util.HibernateUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LendingService {
-    private LendingDAO lendingDAO;
+public class LendBookService {
+    private LendBookDAO lendBookDAO;
     private List<Reader> readersList;
     private List<Book> available;
 
     private void initializeLendingDAO() {
-        if (lendingDAO == null) {
-            lendingDAO = new LendingDAOImpl();
+        if (lendBookDAO == null) {
+            lendBookDAO = new LendBookDAOImpl();
         }
-        lendingDAO.setSessionFactory(HibernateUtil.getSessionFactory());
+        lendBookDAO.setSessionFactory(HibernateUtil.getSessionFactory());
     }
 
     protected List<Book> getAvailableBooksList(Login login) {
         initializeLendingDAO();
-        available = lendingDAO.getAvailableBooksList(login).stream()
-                .filter(book -> book.getLending()==null)
+        available = lendBookDAO.getAvailableBooksList(login).stream()
+                .filter(book -> book.getLendBook()==null)
                 .collect(Collectors.toList());
         return available;
     }
     protected List<Reader> getReadersList(Login login){
         initializeLendingDAO();
-        readersList = lendingDAO.getReadersList(login);
+        readersList = lendBookDAO.getReadersList(login);
         return readersList;
     }
-    protected void saveLending(Lending lending){
+    protected void saveLending(LendBook lendBook){
         initializeLendingDAO();
-        lendingDAO.save(lending);
+        lendBookDAO.save(lendBook);
     }
     protected Book getBook(int id) {
         return available.stream().filter(book -> book.getId() == id).findAny().orElse(null);

@@ -1,4 +1,4 @@
-package org.library.features.lending;
+package org.library.features.lend_book;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -9,7 +9,7 @@ import org.library.features.reader.Reader;
 
 import java.util.List;
 
-public class LendingDAOImpl implements LendingDAO {
+public class LendBookDAOImpl implements LendBookDAO {
     private SessionFactory sessionFactory;
 
     @Override
@@ -58,13 +58,13 @@ public class LendingDAOImpl implements LendingDAO {
     }
 
     @Override
-    public void save(Lending lending) {
+    public void save(LendBook lendBook) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            if(lending != null){
-                session.saveOrUpdate(lending);
+            if(lendBook != null){
+                session.saveOrUpdate(lendBook);
             }
             transaction.commit();
         } catch (Exception e) {

@@ -38,10 +38,10 @@ public class WelcomeController extends HttpServlet {
                 resp.sendRedirect("authors");
                 break;
             case "lend book":
-                resp.sendRedirect("/lending");
+                resp.sendRedirect("lending");
                 break;
             case "return book":
-                resp.sendRedirect("/return-book");
+                resp.sendRedirect("return-book");
                 break;
             default:
                 throw new IllegalArgumentException("Wrong button value!");

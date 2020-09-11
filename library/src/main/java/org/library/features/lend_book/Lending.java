@@ -1,4 +1,4 @@
-package org.library.features.lending;
+package org.library.features.lend_book;
 
 import org.library.features.book.Book;
 import org.library.features.login.Login;
@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "lending")
-public class Lending {
+public class LendBook {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -23,8 +23,8 @@ public class Lending {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Login login;
-    public Lending(){}
-    public Lending(int id){
+    public LendBook(){}
+    public LendBook(int id){
         this.id = id;
     }
     public int getId() {
