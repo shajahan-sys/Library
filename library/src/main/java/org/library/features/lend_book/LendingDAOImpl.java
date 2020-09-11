@@ -9,7 +9,7 @@ import org.library.features.reader.Reader;
 
 import java.util.List;
 
-public class LendBookDAOImpl implements LendBookDAO {
+public class LendingDAOImpl implements LendingBookDAO {
     private SessionFactory sessionFactory;
 
     @Override
@@ -58,13 +58,13 @@ public class LendBookDAOImpl implements LendBookDAO {
     }
 
     @Override
-    public void save(LendBook lendBook) {
+    public void save(Lending lending) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            if(lendBook != null){
-                session.saveOrUpdate(lendBook);
+            if(lending != null){
+                session.saveOrUpdate(lending);
             }
             transaction.commit();
         } catch (Exception e) {

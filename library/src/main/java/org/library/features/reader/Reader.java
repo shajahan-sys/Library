@@ -1,7 +1,7 @@
 package org.library.features.reader;
 
 import org.library.features.login.Login;
-import org.library.features.lending.Lending;
+import org.library.features.lend_book.Lending;
 
 import javax.persistence.*;
 import java.util.Set;

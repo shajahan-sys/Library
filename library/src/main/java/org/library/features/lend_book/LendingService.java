@@ -8,33 +8,33 @@ import org.library.hibernate_util.HibernateUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LendBookService {
-    private LendBookDAO lendBookDAO;
+public class LendingService {
+    private LendingBookDAO lendingBookDAO;
     private List<Reader> readersList;
     private List<Book> available;
 
     private void initializeLendingDAO() {
-        if (lendBookDAO == null) {
-            lendBookDAO = new LendBookDAOImpl();
+        if (lendingBookDAO == null) {
+            lendingBookDAO = new LendingDAOImpl();
         }
-        lendBookDAO.setSessionFactory(HibernateUtil.getSessionFactory());
+        lendingBookDAO.setSessionFactory(HibernateUtil.getSessionFactory());
     }
 
     protected List<Book> getAvailableBooksList(Login login) {
         initializeLendingDAO();
-        available = lendBookDAO.getAvailableBooksList(login).stream()
-                .filter(book -> book.getLendBook()==null)
+        available = lendingBookDAO.getAvailableBooksList(login).stream()
+                .filter(book -> book.getLending()==null)
                 .collect(Collectors.toList());
         return available;
     }
     protected List<Reader> getReadersList(Login login){
         initializeLendingDAO();
-        readersList = lendBookDAO.getReadersList(login);
+        readersList = lendingBookDAO.getReadersList(login);
         return readersList;
     }
-    protected void saveLending(LendBook lendBook){
+    protected void saveLending(Lending lending){
         initializeLendingDAO();
-        lendBookDAO.save(lendBook);
+        lendingBookDAO.save(lending);
     }
     protected Book getBook(int id) {
         return available.stream().filter(book -> book.getId() == id).findAny().orElse(null);

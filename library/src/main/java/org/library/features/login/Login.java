@@ -2,7 +2,7 @@ package org.library.features.login;
 
 import org.library.features.author.Author;
 import org.library.features.book.Book;
-import org.library.features.lending.Lending;
+import org.library.features.lend_book.Lending;
 import org.library.features.reader.Reader;
 
 import javax.persistence.*;

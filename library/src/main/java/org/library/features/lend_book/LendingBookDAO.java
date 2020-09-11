@@ -7,14 +7,14 @@ import org.library.features.reader.Reader;
 
 import java.util.List;
 
-public interface LendBookDAO {
+public interface LendingBookDAO {
     void setSessionFactory(SessionFactory sessionFactory);
 
     List<Reader> getReadersList(Login login);
 
     List<Book> getAvailableBooksList(Login login);
 
-    void save(LendBook lendBook);
+    void save(Lending lending);
 
 
 }

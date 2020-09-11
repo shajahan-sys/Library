@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "lending")
-public class LendBook {
+public class Lending {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -23,10 +23,14 @@ public class LendBook {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Login login;
-    public LendBook(){}
-    public LendBook(int id){
+
+    public Lending() {
+    }
+
+    public Lending(int id) {
         this.id = id;
     }
+
     public int getId() {
         return id;
     }
@@ -50,6 +54,7 @@ public class LendBook {
     public Reader getReader() {
         return reader;
     }
+
     public String getReturnDate() {
         return returnDate;
     }

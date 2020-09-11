@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @WebServlet(urlPatterns = "lend-book")
-public class LendBookController extends HttpServlet {
-    private LendBookService lendBookService;
+public class LendingController extends HttpServlet {
+    private LendingService lendingService;
     private Login login;
     private Reader selectedReader;
     private Book selectedBook;
@@ -30,7 +30,7 @@ public class LendBookController extends HttpServlet {
         if (login != null) {
             initializeLendingService();
             setRequestAttributes(req);
-            req.getRequestDispatcher("lendBook.jsp").forward(req, resp);
+            req.getRequestDispatcher("lending.jsp").forward(req, resp);
         } else {
             resp.sendRedirect("login.jsp");
         }
@@ -50,8 +50,8 @@ public class LendBookController extends HttpServlet {
     }
 
     protected void setRequestAttributes(HttpServletRequest req) {
-        req.setAttribute("books", lendBookService.getAvailableBooksList(login));
-        req.setAttribute("readers", lendBookService.getReadersList(login));
+        req.setAttribute("books", lendingService.getAvailableBooksList(login));
+        req.setAttribute("readers", lendingService.getReadersList(login));
         if (selectedBook != null) {
             req.setAttribute("selBook", selectedBook);
         }
@@ -62,18 +62,18 @@ public class LendBookController extends HttpServlet {
     }
 
     private void initializeLendingService() {
-        if (lendBookService == null) {
-            lendBookService = new LendBookService();
+        if (lendingService == null) {
+            lendingService = new LendingService();
         }
     }
 
-    protected LendBook getProperLendingObject(HttpServletRequest req) {
-        LendBook lendBook = new LendBook();
-        lendBook.setBook(lendBookService.getBook(Integer.parseInt(req.getParameter("book"))));
-        lendBook.setReader(lendBookService.getReader(Integer.parseInt(req.getParameter("reader"))));
-        lendBook.setReturnDate(req.getParameter("date"));
-        lendBook.setLogin(login);
-        return lendBook;
+    protected Lending getProperLendingObject(HttpServletRequest req) {
+        Lending lending = new Lending();
+        lending.setBook(lendingService.getBook(Integer.parseInt(req.getParameter("book"))));
+        lending.setReader(lendingService.getReader(Integer.parseInt(req.getParameter("reader"))));
+        lending.setReturnDate(req.getParameter("date"));
+        lending.setLogin(login);
+        return lending;
     }
 
     protected boolean isDateFormatProper(String input) {
@@ -82,14 +82,14 @@ public class LendBookController extends HttpServlet {
 
     protected void resolveLend(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (isDateFormatProper(req.getParameter("date"))) {
-            lendBookService.saveLending(getProperLendingObject(req));
+            lendingService.saveLending(getProperLendingObject(req));
             removeSessionAttributes();
             resp.sendRedirect("books");
         } else {
             PrintWriter out = resp.getWriter();
             out.println("<script type=\"text/javascript\">");
             out.println("alert('The specified date format is not valid. Use the yyyy-mm-dd format.');");
-            out.println("location='lendBook.jsp';");
+            out.println("location='lending.jsp';");
             out.println("</script>");
         }
     }

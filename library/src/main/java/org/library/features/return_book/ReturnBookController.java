@@ -1,6 +1,6 @@
 package org.library.features.return_book;
 
-import org.library.features.lending.Lending;
+import org.library.features.lend_book.Lending;
 import org.library.features.login.Login;
 import org.library.features.reader.Reader;
 
@@ -41,7 +41,7 @@ public class ReturnBookController extends HttpServlet {
             resp.sendRedirect("books");
         } else if (req.getParameter("button").equals("cancel")) {
             removeSessionAttributes();
-            resp.sendRedirect("welcome");
+            resp.sendRedirect("menu");
         }
 
     }
