@@ -33,7 +33,7 @@ public class LoginController extends HttpServlet {
         if (isLoginAndPasswordValid()) {
             HttpSession session = req.getSession();
             session.setAttribute("userLogin", loginService.getLogin());
-            resp.sendRedirect("welcome");
+            resp.sendRedirect("menu");
         } else {
             printMessage(resp);
         }
@@ -74,7 +74,7 @@ public class LoginController extends HttpServlet {
             case "create":
                 return loginService.createNewAccount(login);
             default:
-                throw new IllegalArgumentException("Wrong value! Value should equal to 0 or 1");
+                throw new IllegalArgumentException("Wrong value! Value should equal to login or create");
         }
     }
 

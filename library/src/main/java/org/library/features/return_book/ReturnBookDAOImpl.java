@@ -4,9 +4,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.library.features.lending.Lending;
+import org.library.features.lend_book.Lending;
 import org.library.features.login.Login;
-import org.library.features.reader.Reader;
 
 import java.util.List;
 
