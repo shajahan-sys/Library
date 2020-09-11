@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.library.features.book.Book" %>
 
 <html>
     <head>
@@ -15,6 +16,7 @@
             if(session.getAttribute("userLogin")==null){
             response.sendRedirect("login.jsp");
             }
+
             %>  <div align="left">
                          <form action="books" method="get">
                          Book Title : <input type="text" name ="searchTitle">
@@ -41,6 +43,7 @@
                            <td><c:out value="${book.getAuthor().getSurname()}" /></td>
                            <td><c:out value="${book.getPublicationYear()}"/></td>
                            <td><c:out value="${book.getLending().getReturnDate()}"/></td>
+
                               <td><input type="radio" name ="selected" value="${book.getId()}" required/></td>
                        </tr>
                    </c:forEach>
@@ -49,12 +52,14 @@
                 <INPUT TYPE="submit" name="button" VALUE="lend"/>
                 <INPUT TYPE="submit" name="button" VALUE="return"/>
                 <INPUT TYPE="submit" name="button" VALUE="delete"/>
+
                 </form>
                 <form action="books" method="post">
                  <input type="submit" name="button" value="add new">
+                 <input type="submit" name="button" value="menu">
                  </form><br>
              </div>
-                  <div align="left">
+       <div align="left">
                    <form action="logout" method="post">
                           <input type="submit" name="button" value="logout">
                           </form><br>

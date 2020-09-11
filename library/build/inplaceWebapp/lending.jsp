@@ -4,7 +4,7 @@
 <html>
     <head>
     <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" >
-        <title>Management Page</title>
+        <title>Lend book</title>
     </head>
     <body>
       <%
@@ -14,16 +14,16 @@
                 if(session.getAttribute("userLogin")==null){
                 response.sendRedirect("login.jsp");
                 }
-                boolean isEdited = false;
+                boolean isReaderSelected = false;
                 if(request.getAttribute("selReader") != null)
-                {isEdited = true;}
+                {isReaderSelected = true;}
                 boolean isBookSelected = false;
                 if(request.getAttribute("selBook") != null){
                 isBookSelected = true;
                 }
                 %>
             <div align="left">
-                           <form name="myForm" action="lending" method="post">
+                           <form name="myForm" action="lend-book" method="post">
                               Book : <select name="book" id="1">
                                                     <option value="no book" >select book</option>
                                                       <c:forEach var="book" items="${books}" >
@@ -38,7 +38,7 @@
                                      <option value="no reader" >select reader</option>
                                        <c:forEach var="reader" items="${readers}" >
                                           <option value="${reader.getId()}"
-                                          <%if(isEdited){%>
+                                          <%if(isReaderSelected){%>
                                           ${reader.getId() == selReader.getId() ? 'selected="selected"' : ''}<%}%>>
                                          ${reader.getSurname()} ${reader.getName()}
                                           </option>

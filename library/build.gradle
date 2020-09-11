@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'org.gretty' version '3.0.3'
 }
-java{
+java {
     sourceCompatibility = JavaVersion.VERSION_12
     targetCompatibility = JavaVersion.VERSION_12
 }
@@ -34,18 +34,18 @@ dependencies {
    // https://mvnrepository.com/artifact/javax.servlet/jstl
     compile group: 'javax.servlet', name: 'jstl', version: '1.2'
     // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
-    compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+    //   compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
     // https://mvnrepository.com/artifact/org.mindrot/jbcrypt
     compile group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
     // https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.4.6'
 
 // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
- //  testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.5'
-   // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-   // compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
+    //  testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.5'
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    // compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
     // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl
-  //  testCompile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.13.3'
+    //  testCompile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.13.3'
 
 }
 test {
