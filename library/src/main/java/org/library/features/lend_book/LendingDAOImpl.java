@@ -1,9 +1,13 @@
 package org.library.features.lend_book;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.library.features.book.Book;
+import org.library.features.book.BookDAOImpl;
 import org.library.features.login.Login;
 import org.library.features.reader.Reader;
 
@@ -11,6 +15,7 @@ import java.util.List;
 
 public class LendingDAOImpl implements LendingBookDAO {
     private SessionFactory sessionFactory;
+    private final Logger logger = LogManager.getLogger(LendingDAOImpl.class);
 
     @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
@@ -24,13 +29,17 @@ public class LendingDAOImpl implements LendingBookDAO {
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            readers = session.createQuery("from Reader where user_id = :id")
+            readers = session.createQuery("from Reader where user_id = :id order by surname")
                     .setParameter("id", login.getId())
                     .getResultList();
             transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
+        } catch (RuntimeException e) {
+            logger.error(e.getMessage());
+            try {
+                if (transaction != null)
+                    transaction.rollback();
+            } catch (HibernateException e1) {
+                logger.error("Transaction rollback not successful");
             }
             throw e;
         }
@@ -44,13 +53,17 @@ public class LendingDAOImpl implements LendingBookDAO {
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            books = session.createQuery("from Book where user_id = :id")
+            books = session.createQuery("from Book where user_id = :id order by title")
                     .setParameter("id", login.getId())
                     .getResultList();
             transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
+        } catch (RuntimeException e) {
+            logger.error(e.getMessage());
+            try {
+                if (transaction != null)
+                    transaction.rollback();
+            } catch (HibernateException e1) {
+                logger.error("Transaction rollback not successful");
             }
             throw e;
         }
@@ -67,10 +80,13 @@ public class LendingDAOImpl implements LendingBookDAO {
                 session.saveOrUpdate(lending);
             }
             transaction.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (transaction != null) {
-                transaction.rollback();
+        } catch (RuntimeException e) {
+            logger.error(e.getMessage());
+            try {
+                if (transaction != null)
+                    transaction.rollback();
+            } catch (HibernateException e1) {
+                logger.error("Transaction rollback not successful");
             }
             throw e;
         }
