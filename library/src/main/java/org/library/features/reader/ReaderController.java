@@ -27,6 +27,7 @@ public class ReaderController extends HttpServlet {
         }
         login = (Login) session.getAttribute("userLogin");
         if (login != null) {
+            initializeReaderService();
             setProperAttributesForwardRequest(req, resp);
         } else {
             resp.sendRedirect("login.jsp");
@@ -35,7 +36,6 @@ public class ReaderController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        initializeReaderService();
         if (req.getParameter("selected") != null) {
             selectedReader = readerService.getReader(Integer.parseInt(req.getParameter("selected")));
         }
@@ -70,24 +70,12 @@ public class ReaderController extends HttpServlet {
     }
 
     protected void resolveDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        //   Reader reader =readerService.getReader(Integer.parseInt(req.getParameter("selected")));
         if (selectedReader.getLendings().size() == 0) {
             readerService.delete(selectedReader);
-            setProperAttributesForwardRequest(req, resp);
+            session.setAttribute("readers", readerService.getReadersList(login));
+            req.getRequestDispatcher("reader.jsp").forward(req, resp);
         } else {
-            PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('Cannot delete selected reader. The reader has not returned borrowed books yet.');");
-            out.println("location='reader.jsp';");
-            out.println("</script>");
-           /* PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('Cannot delete selected reader. The reader hasn't returned borrowed books yet.');");
-       //     out.println("alert('Cannot delete selected reader. The reader hasn't returned borrowed books yet.');");
-            out.println("location='reader.jsp';");
-            out.println("</script>");
-
-            */
+            printMessage("Cannot delete selected reader. The reader has not returned borrowed books yet.", resp);
         }
     }
 
@@ -102,19 +90,23 @@ public class ReaderController extends HttpServlet {
             session.setAttribute("reader", selectedReader);
             resp.sendRedirect("return-book");
         } else {
-            PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('Selected reader does not have any books to return.');");
-            out.println("location='reader.jsp';");
-            out.println("</script>");
+            printMessage("Selected reader does not have any books to return.", resp);
         }
     }
 
-    protected void setProperAttributesForwardRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        initializeReaderService();
-        session.setAttribute("readers", readerService.getReadersList(login));
-        req.getRequestDispatcher("reader.jsp").forward(req, resp);
+    protected void printMessage(String message, HttpServletResponse resp) throws IOException {
+        PrintWriter out = resp.getWriter();
+        out.println("<script type=\"text/javascript\">");
+        out.println("alert('" + message + "');");
+        out.println("location='reader.jsp';");
+        out.println("</script>");
+    }
 
+    protected void setProperAttributesForwardRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (session.getAttribute("readers") == null) {
+            session.setAttribute("readers", readerService.getReadersList(login));
+        }
+        req.getRequestDispatcher("reader.jsp").forward(req, resp);
     }
 
     private void initializeReaderService() {

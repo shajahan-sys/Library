@@ -2,7 +2,6 @@ package org.library.features.add_edit;
 
 
 import org.library.features.login.Login;
-import org.library.features.reader.Reader;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -15,15 +14,14 @@ public abstract class AddEditController<T> extends HttpServlet {
     private HttpSession session;
     private Login login;
     private T toEdit;
-    private String properJspName;
 
-    //   protected abstract void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException;
-    //  protected abstract void doPost(HttpServletRequest req, HttpServletResponse resp) throws SecurityException, IOException;
     protected abstract void save(T object);
 
     protected abstract void setAddEditService(AddEditService<T> addEditService);
 
     protected abstract T createObjectWithProperData(HttpServletRequest req);
+
+    protected abstract void deleteNoLongerValidSessionAttribute(HttpSession session);
 
     protected abstract String getProperJspName();
 
@@ -39,6 +37,7 @@ public abstract class AddEditController<T> extends HttpServlet {
             if (toEdit != null) {
                 req.setAttribute("edit", toEdit);
             }
+            deleteNoLongerValidSessionAttribute(session);
             req.getRequestDispatcher(getProperJspName()).forward(req, resp);
         } else {
             resp.sendRedirect("login");

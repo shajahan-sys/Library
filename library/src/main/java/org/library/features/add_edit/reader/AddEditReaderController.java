@@ -6,6 +6,7 @@ import org.library.features.reader.Reader;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(urlPatterns = "add-edit-reader")
 public class AddEditReaderController extends AddEditController<Reader> {
@@ -34,6 +35,11 @@ public class AddEditReaderController extends AddEditController<Reader> {
             reader.setId(getToEdit().getId());
         }
         return reader;
+    }
+
+    @Override
+    protected void deleteNoLongerValidSessionAttribute(HttpSession session) {
+        session.removeAttribute("readers");
     }
 
     @Override
