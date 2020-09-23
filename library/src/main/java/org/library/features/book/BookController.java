@@ -31,11 +31,7 @@ public class BookController extends HttpServlet {
             session = req.getSession();
         }
         login = (Login) session.getAttribute("userLogin");
-        if (login != null) {
             setProperAttributesForwardRequest(req, resp);
-        } else {
-            resp.sendRedirect("login");
-        }
     }
 
     protected void setProperAttributesForwardRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -76,21 +72,23 @@ public class BookController extends HttpServlet {
     }
 
     protected void setProperListOfBooks(HttpServletRequest req) {
-        List<Book> books = bookService.getBooksList(login);
         String button = req.getParameter("button");
         if (button == null || button.equals("delete")) {
-            setManagementValueIfDoesntExist(books);
+            List<Book> books = bookService.getBooksList(login);
+          //  setLendingValueIfDoesntExist(books);
             session.setAttribute("books", books);
         } else if (button.equals("search")) {
             filterBooks(req);
-            setManagementValueIfDoesntExist(filteredBooks);
+           // setLendingValueIfDoesntExist(filteredBooks);
             session.setAttribute("books", filteredBooks);
         }
     }
 
     protected void setProperListOfAuthors() {
-        authors = bookService.getAuthorsList(login);
-        if (session.getAttribute("authors") == null) {
+        if (session.getAttribute("authors") != null) {
+            authors = (List<Author>) session.getAttribute("authors");
+        } else {
+            authors = bookService.getAuthorsList(login);
             session.setAttribute("authors", authors);
         }
     }
@@ -101,25 +99,22 @@ public class BookController extends HttpServlet {
         }
     }
 
-    protected void setManagementValueIfDoesntExist(List<Book> bookList) {
+    protected void setLendingValueIfDoesntExist(List<Book> bookList) {
         bookList.forEach(book -> {
             if (book.getLending() == null) {
                 book.setLending(new Lending());
-                book.getLending().setReturnDate("available");
+              //  book.getLending().setReturnDate("available");
             }
         });
     }
 
     void resolveReturn(HttpServletResponse resp) throws IOException {
-        if (selectedBook.getLending().getReturnDate().equals("available")) {
-            //  req.setAttribute("loginError", "avb");
+        if (selectedBook.getLending() == null) {
             PrintWriter out = resp.getWriter();
             out.println("<script type=\"text/javascript\">");
             out.println("alert('Cannot return this book, because it is not rented');");
             out.println("location='book.jsp';");
             out.println("</script>");
-            // req.getRequestDispatcher("book.jsp").include(req, resp);
-            //  setProperAttributesForwardRequest(req, resp);
         } else {
             session.setAttribute("reader", selectedBook.getLending().getReader());
             session.setAttribute("lendings", selectedBook.getLending().getReader().getLendings());
@@ -133,26 +128,23 @@ public class BookController extends HttpServlet {
     }
 
     void resolveDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        if (selectedBook.getLending() == null){
+        if (selectedBook.getLending()== null) {
             bookService.deleteBook(selectedBook);
             setProperAttributesForwardRequest(req, resp);
-        }
-        else {
+        } else {
             PrintWriter out = resp.getWriter();
             out.println("<script type=\"text/javascript\">");
             out.println("alert('Cannot delete selected book, because it is already rented. Book must be returned to be deleted.');");
             out.println("location='book.jsp';");
             out.println("</script>");
         }
-
     }
 
     void resolveLend(HttpServletResponse resp) throws IOException {
-        if (selectedBook.getLending() == null){
-        session.setAttribute("selBook", selectedBook);
+        if (selectedBook.getLending() == null) {
+            session.setAttribute("selBook", selectedBook);
             resp.sendRedirect("lend-book");
-        }
-        else {
+        } else {
             PrintWriter out = resp.getWriter();
             out.println("<script type=\"text/javascript\">");
             out.println("alert('Cannot lend selected book, because it is already rented.');");

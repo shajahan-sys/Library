@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet(urlPatterns = "authors")
+@WebServlet(urlPatterns = "/authors")
 public class AuthorController extends HttpServlet {
     private HttpSession session;
     private Login login;
@@ -25,11 +25,7 @@ public class AuthorController extends HttpServlet {
             session = req.getSession();
         }
         login = (Login) session.getAttribute("userLogin");
-        if (login != null) {
             setProperAttributesForwardRequest(req, resp);
-        } else {
-            resp.sendRedirect("login.jsp");
-        }
     }
 
     @Override
@@ -37,7 +33,8 @@ public class AuthorController extends HttpServlet {
         switch (req.getParameter("button")) {
             case "edit":
                 resolveEdit(req);
-                resp.sendRedirect("add-edit-author");
+             //   req.getRequestDispatcher("add-edit-author").forward(req, resp);
+               resp.sendRedirect("add-edit-author");
                 break;
             case "delete":
                 resolveDelete(req, resp);
@@ -55,6 +52,7 @@ public class AuthorController extends HttpServlet {
 
     protected void resolveEdit(HttpServletRequest req) {
         session.setAttribute("edit", authorService.getAuthor(Integer.parseInt(req.getParameter("selected"))));
+      //  req.setAttribute("edit", authorService.getAuthor(Integer.parseInt(req.getParameter("selected"))));
     }
 
     protected void resolveDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {

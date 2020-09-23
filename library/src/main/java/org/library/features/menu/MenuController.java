@@ -9,24 +9,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(urlPatterns = "menu")
+@WebServlet(urlPatterns = "/menu")
 public class MenuController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Login login = (Login) req.getSession().getAttribute("userLogin");
-        if (login != null) {
-            req.getRequestDispatcher("menu.jsp").forward(req, resp);
-        } else {
-            resp.sendRedirect("login");
-        }
+        req.getRequestDispatcher("menu.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        checkWhichButtonWasClicked(req, resp);
-    }
-
-    protected void checkWhichButtonWasClicked(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         switch (req.getParameter("button")) {
             case "books":
                 resp.sendRedirect("books");

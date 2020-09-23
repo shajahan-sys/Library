@@ -26,12 +26,8 @@ public class ReaderController extends HttpServlet {
             session = req.getSession();
         }
         login = (Login) session.getAttribute("userLogin");
-        if (login != null) {
             initializeReaderService();
             setProperAttributesForwardRequest(req, resp);
-        } else {
-            resp.sendRedirect("login");
-        }
     }
 
     @Override

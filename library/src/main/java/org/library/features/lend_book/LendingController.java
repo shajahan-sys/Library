@@ -12,8 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
-@WebServlet(urlPatterns = "lend-book")
+@WebServlet(urlPatterns = "/lend-book")
 public class LendingController extends HttpServlet {
     private LendingService lendingService;
     private Login login;
@@ -27,19 +29,15 @@ public class LendingController extends HttpServlet {
         login = (Login) session.getAttribute("userLogin");
         selectedBook = (Book) session.getAttribute("selBook");
         selectedReader = (Reader) session.getAttribute("selReader");
-        if (login != null) {
             initializeLendingService();
             setRequestAttributes(req);
             req.getRequestDispatcher("lending.jsp").forward(req, resp);
-        } else {
-            resp.sendRedirect("login.jsp");
-        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("button").equals("lend")) {
-            resolveLend(req, resp);
+                resolveLend(req, resp);
             //  removeSessionAttributes();
             //   resp.sendRedirect("books");
         } else if (req.getParameter("button").equals("cancel")) {
@@ -67,11 +65,11 @@ public class LendingController extends HttpServlet {
         }
     }
 
-    protected Lending getProperLendingObject(HttpServletRequest req) {
+    protected Lending getProperLendingObject(HttpServletRequest req) throws ParseException {
         Lending lending = new Lending();
         lending.setBook(lendingService.getBook(Integer.parseInt(req.getParameter("book"))));
         lending.setReader(lendingService.getReader(Integer.parseInt(req.getParameter("reader"))));
-        lending.setReturnDate(req.getParameter("date"));
+        lending.setReturnDate(new SimpleDateFormat("yyyy-MM-dd").parse(req.getParameter("date")));
         lending.setLogin(login);
         return lending;
     }
@@ -81,17 +79,36 @@ public class LendingController extends HttpServlet {
     }
 
     protected void resolveLend(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            lendingService.saveLending(getProperLendingObject(req));
+            removeSessionAttributes();
+            resp.sendRedirect("books");
+        } catch (ParseException e) {
+            printMessage("The specified date format is not valid. Use the yyyy-mm-dd format.", resp);
+            e.printStackTrace();
+
+     /*   }
         if (isDateFormatProper(req.getParameter("date"))) {
             lendingService.saveLending(getProperLendingObject(req));
             removeSessionAttributes();
             resp.sendRedirect("books");
         } else {
-            PrintWriter out = resp.getWriter();
+            printMessage("The specified date format is not valid. Use the yyyy-mm-dd format.", resp);
+           PrintWriter out = resp.getWriter();
             out.println("<script type=\"text/javascript\">");
             out.println("alert('The specified date format is not valid. Use the yyyy-mm-dd format.');");
             out.println("location='lending.jsp';");
             out.println("</script>");
+
+            */
         }
+    }
+    protected void printMessage(String message, HttpServletResponse resp) throws IOException {
+        PrintWriter out = resp.getWriter();
+        out.println("<script type=\"text/javascript\">");
+        out.println("alert('" + message + "');");
+        out.println("location='lending.jsp';");
+        out.println("</script>");
     }
 
     protected void removeSessionAttributes() {

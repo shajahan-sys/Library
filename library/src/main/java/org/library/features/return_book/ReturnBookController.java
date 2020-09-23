@@ -13,24 +13,20 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
 
-@WebServlet("return-book")
+@WebServlet("/return-book")
 public class ReturnBookController extends HttpServlet {
     private ReturnBookService returnBookService;
     private Reader reader;
     private HttpSession session;
     private Set<Lending> lendingSet;
+    private Login login;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         session = req.getSession();
-        Login login = (Login) session.getAttribute("userLogin");
-        if (login != null) {
+        login = (Login) session.getAttribute("userLogin");
             setProperRequestAttributes(req);
-            req.setAttribute("readers", returnBookService.getActiveReadersList(login));
             req.getRequestDispatcher("returnBook.jsp").forward(req, resp);
-        } else {
-            resp.sendRedirect("login.jsp");
-        }
     }
 
     @Override
@@ -56,15 +52,24 @@ public class ReturnBookController extends HttpServlet {
     }
 
     protected void setProperRequestAttributes(HttpServletRequest req) {
+        initializeReturnBookService();
         reader = (Reader) session.getAttribute("reader");
         lendingSet = (Set<Lending>) session.getAttribute("lendings");
-        initializeReturnBookService();
-        if (reader != null && lendingSet != null) {
+        String button = req.getParameter("button");
+        if (button == null && reader != null && lendingSet != null) {
             req.setAttribute("selectedReader", reader);
             req.setAttribute("lendings", lendingSet);
         }
-        if (req.getParameter("button") != null && req.getParameter("button").equals("submit"))
+        if (button != null && button.equals("submit")) {
             resolveSubmit(req);
+        }
+        setActiveReaders(req);
+    }
+
+    protected void setActiveReaders(HttpServletRequest req) {
+        if (req.getAttribute("readers") == null) {
+            req.setAttribute("readers", returnBookService.getActiveReadersList(login));
+        }
     }
 
     protected void initializeReturnBookService() {
@@ -74,9 +79,12 @@ public class ReturnBookController extends HttpServlet {
     }
 
     protected void resolveSubmit(HttpServletRequest req) {
-        Reader reader = returnBookService.getReader(Integer.parseInt(req.getParameter("selReader")));
-        Set<Lending> lendingSet = reader.getLendings();
-        req.setAttribute("lendings", lendingSet);
-        req.setAttribute("selectedReader", reader);
+        String readerId = req.getParameter("selReader");
+        if (!readerId.equals("no reader")) {
+            Reader reader = returnBookService.getReader(Integer.parseInt(readerId));
+            Set<Lending> lendingSet = reader.getLendings();
+            req.setAttribute("lendings", lendingSet);
+            req.setAttribute("selectedReader", reader);
+        }
     }
 }
