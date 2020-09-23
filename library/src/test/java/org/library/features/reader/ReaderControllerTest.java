@@ -71,7 +71,8 @@ class ReaderControllerTest {
         reader.setLendings(lending);
         when(req.getParameter("selected")).thenReturn("1");
         when(service.getReader(1)).thenReturn(reader);
-        readerController.createProperSelectedReader(req);
+        when(service.isReaderLendingSetEmpty(1)).thenReturn(false);
+        readerController.createSelectedReaderId(req);
         readerController.resolveReturn(resp);
         assertAll(
                 () -> verify(session).setAttribute("lendings", lending),
@@ -88,51 +89,47 @@ class ReaderControllerTest {
         when(req.getParameter("selected")).thenReturn("1");
         when(service.getReader(1)).thenReturn(reader);
         readerController.setReaderService(service);
-        readerController.createProperSelectedReader(req);
+        readerController.createSelectedReaderId(req);
         readerController.resolveLend();
         verify(session).setAttribute("selReader", reader);
     }
 
     @Test
     void test_resolveDelete_when_selectedReaders_lendingSet_isEmpty() throws IOException, ServletException {
-        readerController.setReaderService(service);
-        readerController.setSession(session);
-        reader = new Reader();
         List<Reader> readers = new ArrayList<>();
-        Set<Lending> lending = new HashSet<>();
-        reader.setLendings(lending);
         RequestDispatcher rd = mock(RequestDispatcher.class);
         when(req.getRequestDispatcher(captor.capture())).thenReturn(rd);
         when(req.getParameter("selected")).thenReturn("1");
-        when(service.getReader(1)).thenReturn(reader);
+        when(service.deleteIfPossible(1)).thenReturn(true);
         when(service.getReadersList(new Login())).thenReturn(readers);
-        readerController.createProperSelectedReader(req);
+        readerController.setReaderService(service);
+        readerController.setSession(session);
+        readerController.createSelectedReaderId(req);
         readerController.resolveDelete(req, resp);
         assertAll(
-                () -> verify(service).delete(reader),
+                () -> verify(service).deleteIfPossible(1),
                 () -> verify(session).setAttribute("readers", readers),
                 () -> verify(req).getRequestDispatcher(captor.capture()),
                 () -> assertEquals("reader.jsp", captor.getValue())
         );
     }
 
+
     @Test
     void test_resolveEdit() {
-        reader = new Reader();
         readerController.setSession(session);
         when(req.getParameter("selected")).thenReturn("1");
-        when(service.getReader(1)).thenReturn(reader);
         readerController.setReaderService(service);
-        readerController.createProperSelectedReader(req);
         readerController.resolveEdit();
-        verify(session).setAttribute("edit", reader);
+        verify(session).setAttribute("edit", readerController.getSelectedReader());
     }
 
     @Test
     void test_createProperSelectedReader() {
         when(req.getParameter("selected")).thenReturn("1");
         readerController.setReaderService(service);
-        readerController.createProperSelectedReader(req);
+        readerController.createSelectedReaderId(req);
+        readerController.getSelectedReader();
         verify(service).getReader(1);
     }
 
@@ -145,6 +142,8 @@ class ReaderControllerTest {
     @Test
     void test_doPost_when_button_name_equals_edit() throws ServletException, IOException {
         when(req.getParameter("button")).thenReturn("edit");
+        when(req.getParameter("selected")).thenReturn("1");
+        readerController.setReaderService(service);
         readerController.setSession(session);
         readerController.doPost(req, resp);
         assertAll(
@@ -157,6 +156,7 @@ class ReaderControllerTest {
     void test_doPost_when_button_name_equals_lend() throws ServletException, IOException {
         when(req.getParameter("button")).thenReturn("lend");
         readerController.setSession(session);
+        readerController.setReaderService(service);
         readerController.doPost(req, resp);
         assertAll(
                 () -> verify(resp).sendRedirect(captor.capture()),
@@ -181,16 +181,6 @@ class ReaderControllerTest {
         assertAll(
                 () -> verify(resp).sendRedirect(captor.capture()),
                 () -> assertEquals("menu", captor.getValue())
-        );
-    }
-
-    @Test
-    void test_doGet_when_login_equals_null() throws ServletException, IOException {
-        readerController.setSession(session);
-        readerController.doGet(req, resp);
-        assertAll(
-                () -> verify(resp).sendRedirect(captor.capture()),
-                () -> assertEquals("login", captor.getValue())
         );
     }
 }
