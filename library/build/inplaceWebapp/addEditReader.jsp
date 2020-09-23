@@ -27,12 +27,16 @@
                        </div>
                         <script>
                                  function validateForm() {
-                                     var x = document.forms["myForm"]["name"].value;
-                                     var y = document.forms["myForm"]["surname"].value;
+                                 var x = document.forms["myForm"]["name"].value;
+                                 var y = document.forms["myForm"]["surname"].value;
                                      if (x == "" || y == "") {
                                        alert("Fill in all fields!");
                                        return false;
                                      }
+                                     if(x.length > 45 || y.length > 45){
+                                     alert("Too long name or surname! Use up to 45 characters for each.");
+                                     return false;
+                                    }
                                    }
                            </script>
                         </body>
