@@ -1,7 +1,8 @@
 package org.library.features.reader;
 
-import org.library.features.lend_book.Lending;
 import org.library.features.login.Login;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,14 +12,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
 
 @WebServlet(urlPatterns = "readers")
 public class ReaderController extends HttpServlet {
     private Login login;
     private HttpSession session;
     private ReaderService readerService;
-    private Reader selectedReader;
+    private int selectedReaderId;
+    private static final Logger logger = LoggerFactory.getLogger(ReaderController.class);
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -26,13 +28,14 @@ public class ReaderController extends HttpServlet {
             session = req.getSession();
         }
         login = (Login) session.getAttribute("userLogin");
-            initializeReaderService();
-            setProperAttributesForwardRequest(req, resp);
+        initializeReaderService();
+        setProperAttributesForwardRequest(req, resp);
+        logger.debug("doGet");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        createProperSelectedReader(req);
+        createSelectedReaderId(req);
         switch (req.getParameter("button")) {
             case "edit":
                 resolveEdit();
@@ -55,23 +58,29 @@ public class ReaderController extends HttpServlet {
                 resp.sendRedirect("menu");
                 break;
             default:
+                logger.warn("Wrong button value!");
                 throw new IllegalArgumentException("Wrong button value!");
         }
+        logger.debug("doPost");
     }
 
-    protected void createProperSelectedReader(HttpServletRequest req) {
+    protected Reader getSelectedReader() {
+        return readerService.getReader(selectedReaderId);
+    }
+
+    protected void createSelectedReaderId(HttpServletRequest req) {
         if (req.getParameter("selected") != null) {
-            selectedReader = readerService.getReader(Integer.parseInt(req.getParameter("selected")));
+            selectedReaderId = Integer.parseInt(req.getParameter("selected"));
         }
     }
 
     protected void resolveEdit() {
-        session.setAttribute("edit", selectedReader);
+        session.setAttribute("edit", getSelectedReader());
     }
 
     protected void resolveDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        if (selectedReader.getLendings().isEmpty()) {
-            readerService.delete(selectedReader);
+        if (readerService.deleteIfPossible(selectedReaderId)) {
+            logger.debug("deleted reader");
             session.setAttribute("readers", readerService.getReadersList(login));
             req.getRequestDispatcher("reader.jsp").forward(req, resp);
         } else {
@@ -80,14 +89,13 @@ public class ReaderController extends HttpServlet {
     }
 
     protected void resolveLend() {
-        session.setAttribute("selReader", selectedReader);
+        session.setAttribute("selReader", getSelectedReader());
     }
 
     protected void resolveReturn(HttpServletResponse resp) throws IOException {
-        Set<Lending> lendingSet = selectedReader.getLendings();
-        if (!lendingSet.isEmpty()) {
-            session.setAttribute("lendings", lendingSet);
-            session.setAttribute("reader", selectedReader);
+        if (!readerService.isReaderLendingSetEmpty(selectedReaderId)) {
+            session.setAttribute("lendings", getSelectedReader().getLendings());
+            session.setAttribute("reader", getSelectedReader());
             resp.sendRedirect("return-book");
         } else {
             printMessage("Selected reader does not have any books to return.", resp);
@@ -97,6 +105,7 @@ public class ReaderController extends HttpServlet {
     protected void setProperAttributesForwardRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (session.getAttribute("readers") == null) {
             session.setAttribute("readers", readerService.getReadersList(login));
+            logger.debug("Set session attribute readers");
         }
         req.getRequestDispatcher("reader.jsp").forward(req, resp);
     }
@@ -112,6 +121,7 @@ public class ReaderController extends HttpServlet {
     private void initializeReaderService() {
         if (readerService == null) {
             readerService = new ReaderService();
+            logger.debug("Initialized readerService");
         }
     }
 

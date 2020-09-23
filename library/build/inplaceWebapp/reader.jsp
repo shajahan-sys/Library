@@ -36,7 +36,7 @@
                       </c:otherwise>
                        </c:choose>
                         <td><input type="radio" name ="selected" value="${reader.getId()}" required/></td>
-                 </tr>
+                   </tr>
                 </c:forEach>
             </table>
             <INPUT TYPE="submit" name="button" VALUE="edit"/>
@@ -48,6 +48,9 @@
              <input type="submit" name="button" value="add new">
              <input type="submit" name="button" value="menu">
           </form><br>
+             <form action="logout" method="post">
+               <input type="submit" name="button" value="logout">
+              </form><br>
         </div>
     </body>
 </html
