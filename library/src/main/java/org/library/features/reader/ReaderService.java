@@ -91,7 +91,7 @@ public class ReaderService {
      * sets appropriate message using setMessage method and returns true.
      * Otherwise returns false.
      *
-     * @param id id of a reader, that will be checked that has empty lending set
+     * @param id of a reader, that will be checked that has empty lending set
      * @return true if reader's lendings set is empty, otherwise false
      */
     protected boolean isReaderLendingSetEmpty(int id) {
@@ -109,5 +109,12 @@ public class ReaderService {
     public void setMessage(String message) {
         this.message = message;
         logger.debug("Set message: " + message);
+    }
+
+    /**
+     * @param readerDAO object to det
+     */
+    public void setReaderDAO(ReaderDAO readerDAO) {
+        this.readerDAO = readerDAO;
     }
 }
