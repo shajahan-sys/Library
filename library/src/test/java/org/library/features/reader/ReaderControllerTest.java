@@ -73,7 +73,7 @@ class ReaderControllerTest {
         when(service.getReader(1)).thenReturn(reader);
         when(service.isReaderLendingSetEmpty(1)).thenReturn(false);
         readerController.createSelectedReaderId(req);
-        readerController.resolveReturn(resp);
+        readerController.returnAction(resp);
         assertAll(
                 () -> verify(session).setAttribute("lendings", lending),
                 () -> verify(session).setAttribute("reader", reader),
@@ -90,7 +90,7 @@ class ReaderControllerTest {
         when(service.getReader(1)).thenReturn(reader);
         readerController.setReaderService(service);
         readerController.createSelectedReaderId(req);
-        readerController.resolveLend();
+        readerController.lendAction();
         verify(session).setAttribute("selReader", reader);
     }
 
@@ -105,7 +105,7 @@ class ReaderControllerTest {
         readerController.setReaderService(service);
         readerController.setSession(session);
         readerController.createSelectedReaderId(req);
-        readerController.resolveDelete(req, resp);
+        readerController.deleteAction(req, resp);
         assertAll(
                 () -> verify(service).deleteIfPossible(1),
                 () -> verify(session).setAttribute("readers", readers),
@@ -116,12 +116,13 @@ class ReaderControllerTest {
 
 
     @Test
-    void test_resolveEdit() {
+    void test_resolveEdit(){
         readerController.setSession(session);
         when(req.getParameter("selected")).thenReturn("1");
         readerController.setReaderService(service);
-        readerController.resolveEdit();
-        verify(session).setAttribute("edit", readerController.getSelectedReader());
+        readerController.createSelectedReaderId(req);
+        readerController.editAction();
+        verify(session).setAttribute("readerToEdit", readerController.getSelectedReader());
     }
 
     @Test
