@@ -2,6 +2,8 @@ package org.library.features.author;
 
 
 import org.library.features.login.Login;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,13 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 @WebServlet(urlPatterns = "/authors")
 public class AuthorController extends HttpServlet {
     private HttpSession session;
     private Login login;
     private AuthorService authorService;
+    private int selectedAuthorId;
+    private final Logger logger = LoggerFactory.getLogger(AuthorController.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -25,19 +28,20 @@ public class AuthorController extends HttpServlet {
             session = req.getSession();
         }
         login = (Login) session.getAttribute("userLogin");
-            setProperAttributesForwardRequest(req, resp);
+        setProperAttributesForwardRequest(req, resp);
+        logger.debug("doGet");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        createSelectedAuthorId(req);
         switch (req.getParameter("button")) {
             case "edit":
-                resolveEdit(req);
-             //   req.getRequestDispatcher("add-edit-author").forward(req, resp);
-               resp.sendRedirect("add-edit-author");
+                editAction();
+                resp.sendRedirect("add-edit-author");
                 break;
             case "delete":
-                resolveDelete(req, resp);
+                deleteAction(req, resp);
                 break;
             case "add new":
                 resp.sendRedirect("add-edit-author");
@@ -48,38 +52,48 @@ public class AuthorController extends HttpServlet {
             default:
                 throw new IllegalArgumentException("Wrong button value!");
         }
+        logger.debug("doPost");
     }
 
-    protected void resolveEdit(HttpServletRequest req) {
-        session.setAttribute("edit", authorService.getAuthor(Integer.parseInt(req.getParameter("selected"))));
-      //  req.setAttribute("edit", authorService.getAuthor(Integer.parseInt(req.getParameter("selected"))));
-    }
-
-    protected void resolveDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        Author author = authorService.getAuthor(Integer.parseInt(req.getParameter("selected")));
-        if (author.getBooks().size() == 0) {
-            authorService.delete(author);
-            setProperAttributesForwardRequest(req, resp);
-        } else {
-            PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('Cannot delete selected author. There are some books assigned to this author, delete these books or change the author first.');");
-            out.println("location='author.jsp';");
-            out.println("</script>");
+    protected void createSelectedAuthorId(HttpServletRequest req) {
+        if (req.getParameter("selected") != null) {
+            selectedAuthorId = Integer.parseInt(req.getParameter("selected"));
+            logger.debug("Selected author");
         }
+    }
+
+    protected void editAction() {
+        session.setAttribute("edit", authorService.getAuthor(selectedAuthorId));
+    }
+
+    protected void deleteAction(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        if (authorService.deleteIfPossible(selectedAuthorId)) {
+            setProperAttributesForwardRequest(req, resp);
+            logger.debug("deleted author");
+        } else {
+            printMessage(resp, authorService.getMessage());
+        }
+    }
+
+    protected void printMessage(HttpServletResponse resp, String message) throws IOException {
+        PrintWriter out = resp.getWriter();
+        out.println("<script type=\"text/javascript\">");
+        out.println("alert('" + message + "');");
+        out.println("location='author.jsp';");
+        out.println("</script>");
+        logger.debug("Printed message");
     }
 
     protected void setProperAttributesForwardRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         initializeAuthorService();
-        List<Author> authors = authorService.getAuthorList(login);
-        session.setAttribute("authorList", authors);
+        session.setAttribute("authorList", authorService.getAuthorList(login));
         req.getRequestDispatcher("author.jsp").forward(req, resp);
-
     }
 
     private void initializeAuthorService() {
         if (authorService == null) {
             authorService = new AuthorService();
+            logger.debug("Initialized authorService");
         }
     }
 
@@ -87,4 +101,7 @@ public class AuthorController extends HttpServlet {
         this.authorService = authorService;
     }
 
+    public void setSession(HttpSession session) {
+        this.session = session;
+    }
 }
