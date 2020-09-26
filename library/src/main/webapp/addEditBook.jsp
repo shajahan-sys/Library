@@ -67,6 +67,10 @@
                      alert("Fill in all fields!");
                      return false;
                    }
+                   if(x.length > 45 || y.length > 4){
+                    alert("Too long title or year! Use up to 45 characters for title and 4 for year.");
+                    return false;
+                    }
                   }
              </script>
        </body>
