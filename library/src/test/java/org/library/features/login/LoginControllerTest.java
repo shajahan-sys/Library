@@ -3,24 +3,35 @@ package org.library.features.login;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 class LoginControllerTest {
     @Mock
-    private HttpServletRequest request;
-
+    private HttpServletRequest req;
     private LoginController loginController;
-    private Login properLogin;
-    private Login wrongLogin;
-    private final LoginService service = mock(LoginService.class);
-
+    @Mock
+    private LoginService service;
+    @Mock
+    private HttpServletResponse resp;
+    @Spy
+    private HttpSession session;
+    private final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
     @BeforeEach
     void setUp() {
@@ -34,89 +45,55 @@ class LoginControllerTest {
     }
 
     @Test
-    void shouldThrowAnExceptionWhenValueIsnt0Or1() {
-        mockProperLoginData();
-        mockValue("2");
-       loginController.setProperVariables(request);
-        assertThrows(IllegalArgumentException.class, () -> loginController.resolveAction(new Login()));
-    }
-
-    @Test
-    void shouldTryToLoginToProperAccountAndReturnTrueIfLoginIsCorrect() {
-        beforeTestingResolveAction("0");
-        when(service.loginToProperAccount(properLogin)).thenReturn(true);
-        when(service.loginToProperAccount(wrongLogin)).thenReturn(false);
+    void test_getLoginWithProperData() {
+        String uName = "randomName";
+        String uPass = "pass";
+        when(req.getParameter("username")).thenReturn(uName);
+        when(req.getParameter("password")).thenReturn(uPass);
+        Login expectedLogin = loginController.getLoginWithProperData(req);
         assertAll(
-                () -> assertTrue(loginController.resolveAction(properLogin)),
-                () -> assertFalse(loginController.resolveAction(wrongLogin))
+                () -> assertEquals(expectedLogin.getUserName(), uName),
+                () -> assertEquals(expectedLogin.getPassword(), uPass)
         );
     }
 
     @Test
-    void shouldTryToCreateNewAccountAndReturnTrueIfLoginIsCorrect() {
-        beforeTestingResolveAction("1");
-        when(service.createNewAccount(properLogin)).thenReturn(true);
-        when(service.createNewAccount(wrongLogin)).thenReturn(false);
+    void test_doGet() throws ServletException, IOException {
+        RequestDispatcher rd = mock(RequestDispatcher.class);
+        when(req.getRequestDispatcher(captor.capture())).thenReturn(rd);
+        loginController.doGet(req, resp);
         assertAll(
-                () -> assertTrue(loginController.resolveAction(properLogin)),
-                () -> assertFalse(loginController.resolveAction(wrongLogin))
-        );
+                () -> verify(req).getRequestDispatcher(captor.capture()),
+                () -> assertEquals("login.jsp", captor.getValue()));
     }
 
     @Test
-    void shouldWorkIfValueEquaqls0() {
-        mockProperLoginData();
-        mockValue("0");
-        loginController.setProperVariables(request);
-        assertDoesNotThrow(() -> loginController.isLoginAndPasswordValid());
-    }
-
-    @Test
-    void shouldWorkIfValueEquals1() {
-        mockProperLoginData();
-        mockValue("1");
-        loginController.setProperVariables(request);
-        assertDoesNotThrow(() -> loginController.isLoginAndPasswordValid());
-    }
-
-    @Test
-    void shouldThrowExceptionIfIsInputProperMethodWasntCalledBefore() {
-        mockProperLoginData();
-        mockValue("0");
-        assertThrows(NullPointerException.class, () -> loginController.isLoginAndPasswordValid());
-    }
-
-    @Test
-    void shouldThrowExceptionIfValueIsNot0Or1() {
-        mockProperLoginData();
-        mockValue("3");
-        loginController.setProperVariables(request);
-        assertThrows(IllegalArgumentException.class, () -> loginController.isLoginAndPasswordValid());
-    }
-
-    void mockProperLoginData() {
-        when(request.getParameter("username")).thenReturn("login");
-        when(request.getParameter("password")).thenReturn("password");
-    }
-
-    void mockValue(String number) {
-        when(request.getParameter("command")).thenReturn(number);
-    }
-
-    void createWrongAndProperLogin() {
-        properLogin = new Login();
-        properLogin.setUserName("okey");
-        properLogin.setPassword("right");
-        wrongLogin = new Login();
-        wrongLogin.setUserName("wrong");
-        wrongLogin.setPassword("pass");
-    }
-
-    void beforeTestingResolveAction(String number) {
-        mockValue(number);
+    void test_doPost_when_service_method_loginIfPossible_returns_true() throws IOException {
+        Login myLogin = new Login();
+        when(req.getParameter("command")).thenReturn("login");
+        when(service.getLogin(any(Login.class))).thenReturn(myLogin);
+        when(service.loginIfPossible(any(Login.class), anyString())).thenReturn(true);
+        when(req.getSession()).thenReturn(session);
         loginController.setLoginService(service);
-        mockProperLoginData();
-        createWrongAndProperLogin();
-        loginController.setProperVariables(request);
+        loginController.doPost(req, resp);
+        assertAll(
+                () -> verify(session).setAttribute("userLogin", myLogin),
+                () -> verify(resp).sendRedirect(captor.capture()),
+                () -> assertEquals("menu", captor.getValue())
+        );
     }
+
+    @Test
+    void test_doPost_when_service_method_loginIfPossible_returns_false() throws IOException {
+        when(service.loginIfPossible(any(Login.class), anyString())).thenReturn(false);
+        loginController.setLoginService(service);
+        PrintWriter pw = mock(PrintWriter.class);
+        when(resp.getWriter()).thenReturn(pw);
+        loginController.doPost(req, resp);
+        assertAll(
+                () -> verify(resp).getWriter(),
+                () -> verify(service).getMessage()
+        );
+    }
+
 }
