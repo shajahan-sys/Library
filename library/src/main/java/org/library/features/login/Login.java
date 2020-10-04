@@ -6,30 +6,34 @@ import org.library.features.lend_book.Lending;
 import org.library.features.reader.Reader;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Set;
 
 /**
- * Login POJO class to represent entity Login
+ * POJO class to represent entity Login
  *
  * @author Barbara Grabowska
  * @version %I%
  */
 @Entity
 @Table(name = "login")
-public class Login {
+public class Login implements Serializable {
+    private static final long serialVersionUID =12344L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotNull
     @Column(name = "user_name")
     private String userName;
+    @NotNull
     @Column(name = "password")
     private String password;
     @OneToMany(mappedBy = "login")
     private Set<Book> books;
     @OneToMany(mappedBy = "login")
     private Set<Author> authors;
-    @OneToMany(mappedBy = "login")
-    private Set<Lending> lendings;
     @OneToMany(mappedBy = "login")
     private Set<Reader> readers;
 
