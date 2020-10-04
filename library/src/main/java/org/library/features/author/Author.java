@@ -18,6 +18,8 @@ import java.util.Set;
 @Entity
 @Table(name = "authors")
 public class Author implements Serializable {
+    private static final long serialVersionUID =12341L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
