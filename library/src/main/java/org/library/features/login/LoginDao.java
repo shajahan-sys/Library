@@ -3,11 +3,10 @@ package org.library.features.login;
 import org.hibernate.SessionFactory;
 
 public interface LoginDao {
-    boolean isLoginInputCorrect(Login login);
     void saveNewAccount(Login login);
     boolean doesUserAlreadyExist(Login login);
-    Login getLogin();
-    void setVerifier(Verifiable verifiable);
+    Login getLogin(Login login);
     void setSessionFactory(SessionFactory factory);
+    String getHashedPassword(Login login);
 
 }
