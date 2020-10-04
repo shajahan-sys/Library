@@ -1,88 +1,136 @@
 package org.library.features.login;
 
-import org.hibernate.SessionFactory;
 import org.library.hibernate_util.HibernateUtil;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
- * Login Service class, implements Verifiable, is used by Login Controller class and
- * uses Login DAO interface.
+ * Login Service class, is used by Login Controller class and uses Login DAO interface.
  * <p>
  * Methods can be used to find out if login to proper account or saving given account is possible.
  *
  * @author Barbara Grabowska
  * @version %I%, %G%
  */
-public class LoginService implements Verifiable {
+public class LoginService {
     private LoginDao loginDao;
+    /**
+     * Represents text that contains information why chosen action can not be executed
+     */
     private String message;
-    private SessionFactory sessionFactory;
 
     /**
-     * Checks using LoginDAO method if user with given login username already exists in
-     * database. If user exists then this method return boolean value of Login DAO method
-     * which checks if given login password matches user password stored in database.
-     * If user doesn't already exist returns false.
+     * Checks if it is possible to execute chosen action using provided login data successfully.
+     * If it is not possible then sets proper message and returns false.
+     * Initializes loginDao, decides based on action param that user wants to login or to create
+     * a new account. Uses loginDao to check if user already exists. Calls isLoginInputCorrect or
+     * createNewAccount method. Throws IllegalArgumentException when action doesn not equal to
+     * "login" or "create".
      *
-     * @param login Login object which stores login username and password collected from user
-     * @return true if user already exists in database and if given login password matches
-     * password fetched form database. If user doesn't already exist method returns false.
+     * @param login  Login object that contains login data provided by user
+     * @param action represents action chosen by user
+     * @return true if chosen action can be executed successfully, otherwise false
      */
-    protected boolean loginToProperAccount(Login login) {
+    protected boolean loginIfPossible(Login login, String action) {
         initializeLoginDao();
-        if (loginDao.doesUserAlreadyExist(login)) {
-            return loginDao.isLoginInputCorrect(login);
+        switch (action) {
+            case "login":
+                if (loginDao.doesUserAlreadyExist(login)) {
+                    return isLoginInputCorrect(login);
+                }
+                setMessage("There is no user with such a name");
+                return false;
+            case "create":
+                if (!loginDao.doesUserAlreadyExist(login)) {
+                    createNewAccount(login);
+                    return true;
+                }
+                setMessage("User already exists, try different name");
+                return false;
+            default:
+                throw new IllegalArgumentException("Wrong action name");
         }
-        return false;
     }
 
     /**
-     * Checks if user with given login username already exists in database and if user doesn't
-     * exist this method saves new account with provided login username and password and returns true.
-     * If user already exists returns false.
+     * Hashes String plain text password
+     *
+     * @param plainTextPassword String password
+     * @return hashed password that can be stored in database
+     */
+    protected String hashPassword(String plainTextPassword) {
+        return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
+    }
+
+    /**
+     * Checks if passed login's password matches hashed password that is got using
+     * loginDao class. If so, then sets a new String as password and returns true.
+     * Otherwise sets proper message and returns false.
+     *
+     * @param login Login object that contains proper data
+     * @return true if login object password matches hashed password, otherwise false
+     */
+
+    public boolean isLoginInputCorrect(Login login) {
+        if (BCrypt.checkpw(login.getPassword(), loginDao.getHashedPassword(login))) {
+            login.setPassword("not storing real pass");
+            return true;
+        } else {
+            setMessage("Wrong password!");
+            return false;
+        }
+    }
+
+    /**
+     * Saves a new user account using loginDao saveNewAccount method, before saving data hashes a password
+     * and sets it as the login's password. After saving account sets a new String as the password
      *
      * @param login Login object stores user login username and password
-     * @return true if user doesn't already exist, otherwise false
      */
-    protected boolean createNewAccount(Login login) {
-        initializeLoginDao();
-        if (!loginDao.doesUserAlreadyExist(login)) {
-            loginDao.saveNewAccount(login);
-            return true;
-        }
-        return false;
+    protected void createNewAccount(Login login) {
+        login.setPassword(hashPassword(login.getPassword()));
+        loginDao.saveNewAccount(login);
+        login.setPassword("not storing real pass");
     }
 
     /**
-     * Initializes login DAO interface instance variable with LoginDAOImpl class.
-     * Checks if SessionFactory object reference equals null to make program testable
-     * with test-database. If sessionFactory equals null then this method passes
-     * SessionFactory object which is connected with proper database to loginDao object.
+     * Initializes loginDao if has not already been initialized, sets proper
+     * SessionFactory object using HibernateUtil class.
      */
     private void initializeLoginDao() {
-        loginDao = new LoginDAOImpl();
-        loginDao.setVerifier(this);
-        if (sessionFactory != null) {
-            loginDao.setSessionFactory(sessionFactory);
-        } else {
-            loginDao.setSessionFactory(HibernateUtil.getSessionFactory());
+        if (loginDao == null) {
+            loginDao = new LoginDAOImpl();
         }
+        loginDao.setSessionFactory(HibernateUtil.getSessionFactory());
     }
 
-    protected void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    /**
+     * Gets proper Login object using loginDao
+     *
+     * @param login object with proper username, but without id
+     * @return login object with proper username and id
+     */
+    protected Login getLogin(Login login) {
+        return loginDao.getLogin(login);
     }
 
-    protected Login getLogin() {
-        return loginDao.getLogin();
-    }
-
-    protected String getMessage() {
+    /**
+     * @return message - proper String
+     */
+    protected synchronized String getMessage() {
         return message;
     }
 
-    @Override
-    public void setMessage(String message) {
+    /**
+     * @param message proper message to be set
+     */
+    public synchronized void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * @param loginDao object to be set
+     */
+    public void setLoginDao(LoginDao loginDao) {
+        this.loginDao = loginDao;
+    }
 }
