@@ -6,7 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 /**
  * Login Service class, is used by Login Controller class and uses Login DAO interface.
  * <p>
- * Methods can be used to find out if login to proper account or saving given account is possible.
+ * Methods can be used to find out that login or saving a given account is possible.
  *
  * @author Barbara Grabowska
  * @version %I%, %G%
