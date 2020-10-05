@@ -55,7 +55,7 @@ public class AuthorController extends HttpServlet {
      * @param req  object that contains the request the client has made of the servlet
      * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
      * @throws ServletException if an input or output error is detected when the servlet handles the request
-     * @throws IOException      if the request for the POST could not be handled
+     * @throws IOException if the request for the POST could not be handled
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -85,7 +85,8 @@ public class AuthorController extends HttpServlet {
      */
     protected void editAction(HttpServletRequest req) {
         HttpSession session = req.getSession();
-        session.setAttribute("edit", authorService.getAuthor(Integer.parseInt(req.getParameter("selected")), (Login) session.getAttribute("userLogin")));
+        session.setAttribute("edit", authorService.getAuthor
+                (Integer.parseInt(req.getParameter("selected")), (Login) session.getAttribute("userLogin")));
     }
 
     /**
