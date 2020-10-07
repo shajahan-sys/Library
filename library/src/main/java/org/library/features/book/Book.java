@@ -18,6 +18,8 @@ import java.io.Serializable;
 @Entity
 @Table(name = "books")
 public class Book implements Serializable {
+    private static final long serialVersionUID =12342L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -62,7 +64,7 @@ public class Book implements Serializable {
     public void setTitle(String title) {
         this.title = title;
     }
-    
+
     public String getPublicationYear() {
         return publicationYear;
     }
