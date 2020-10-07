@@ -2,7 +2,8 @@ package org.library.features.book;
 
 import org.library.features.author.Author;
 import org.library.features.login.Login;
-import org.library.features.lend_book.Lending;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,54 +15,66 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-
+/**
+ * Controller class which is a Servlet implementation. Overrides doGet and doPost methods, uses
+ * BookService methods, Book and Author classes as a models. Uses RequestDispatcher object to forward
+ * a request from this servlet to book.jsp file. Enables user to filter books, delete a book, can send
+ * redirect response to LendingController, ReturnBookController, AddEditBookController and MenuController.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
 @WebServlet(urlPatterns = "books")
 public class BookController extends HttpServlet {
     private BookService bookService;
-    private List<Book> filteredBooks;
-    private Login login;
-    private Book selectedBook;
-    private List<Author> authors;
-    private HttpSession session;
+    /**
+     * Logger instance for this class
+     */
+    private final Logger logger = LoggerFactory.getLogger(BookController.class);
 
-
+    /**
+     * Overrides doGet method. Binds proper session attributes using setProperListOfAuthors
+     * and setProperListOfBooks methods. Forwards a request from a servlet to JSP file.
+     *
+     * @param req  HttpServletRequest object that contains the request the client has made of the servlet
+     * @param resp HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws ServletException if an input or output error is detected when the servlet handles the GET request
+     * @throws IOException      if the request for the GET could not be handled
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (session == null) {
-            session = req.getSession();
-        }
-        login = (Login) session.getAttribute("userLogin");
-            setProperAttributesForwardRequest(req, resp);
-    }
-
-    protected void setProperAttributesForwardRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         initializeBookService();
-        setProperListOfAuthors();
+        setProperListOfAuthors(req);
         setProperListOfBooks(req);
         req.getRequestDispatcher("book.jsp").forward(req, resp);
+        logger.debug("doGet");
     }
 
+    /**
+     * Overrides doPost method. Decides what action to take, based on req parameter "button" value.
+     * Throws IllegalArgumentException by default.
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws ServletException if an input or output error is detected when the servlet handles the request
+     * @throws IOException      if the request for the POST could not be handled
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (req.getParameter("selected") != null) {
-            selectedBook = bookService.getBook(Integer.parseInt(req.getParameter("selected")));
-        }
         switch (req.getParameter("button")) {
             case "edit":
-                resolveEdit();
-                resp.sendRedirect("add-edit-book");
+                editAction(req, resp);
                 break;
             case "delete":
-                resolveDelete(req, resp);
+                deleteAction(req, resp);
                 break;
             case "lend":
-                resolveLend(resp);
+                lendAction(req, resp);
                 break;
             case "return":
-                resolveReturn(resp);
+                returnAction(req, resp);
                 break;
             case "add new":
-                session.setAttribute("authors", authors);
                 resp.sendRedirect("add-edit-book");
             case "menu":
                 resp.sendRedirect("menu");
@@ -69,103 +82,188 @@ public class BookController extends HttpServlet {
             default:
                 throw new IllegalArgumentException("Wrong button value!");
         }
+        logger.debug("doPost");
     }
 
+    /**
+     * Sets proper list of Book objects as session attribute "books", depending on button
+     * value. If req parameter button is null, this method sets proper list using bookService
+     * method - getBooksList. If the button value equals "search", this method sets proper
+     * list od books using getFilteredBooks method. This method also checks session
+     * attribute "saved" value. If "saved" does not equal null it means, that some
+     * changes might have occurred (for example a book was edited), so list of books
+     * stored in a bookService's map may be no longer up-to-date, then this method
+     * calls booksService method - deleteFromMap and removes session attribute "saved".
+     *
+     * @param req object that contains the request the client has made of the servlet
+     */
     protected void setProperListOfBooks(HttpServletRequest req) {
+        HttpSession session = req.getSession();
+        Login login = (Login) session.getAttribute("userLogin");
         String button = req.getParameter("button");
-        if (button == null || button.equals("delete")) {
-            List<Book> books = bookService.getBooksList(login);
-          //  setLendingValueIfDoesntExist(books);
-            session.setAttribute("books", books);
+        if (session.getAttribute("saved") != null) {
+            bookService.deleteFormMap(login);
+            session.removeAttribute("saved");
+            logger.debug("Removed list from map and 'saved' attribute");
+        }
+        if (button == null) {
+            session.setAttribute("books", bookService.getBooksList(login));
+            logger.debug("Set list of books");
         } else if (button.equals("search")) {
-            filterBooks(req);
-           // setLendingValueIfDoesntExist(filteredBooks);
-            session.setAttribute("books", filteredBooks);
+            session.setAttribute("books", getFilteredBooks(req));
+            logger.debug("Set filtered books list");
         }
     }
 
-    protected void setProperListOfAuthors() {
-        if (session.getAttribute("authors") != null) {
-            authors = (List<Author>) session.getAttribute("authors");
-        } else {
-            authors = bookService.getAuthorsList(login);
-            session.setAttribute("authors", authors);
+    /**
+     * Sets session attribute named "authorList" which is a  proper list of Author
+     * objects using bookService method - getAuthorsList if does not already exist.
+     *
+     * @param req object that contains the request the client has made of the servlet
+     */
+    protected void setProperListOfAuthors(HttpServletRequest req) {
+        HttpSession session = req.getSession();
+        if (session.getAttribute("authorList") == null) {
+            session.setAttribute("authorList", bookService.getAuthorsList((Login) session.getAttribute("userLogin")));
+            logger.debug("Got Author objects list");
         }
     }
 
-    protected void initializeBookService() {
-        if (bookService == null) {
-            bookService = new BookService();
-        }
-    }
-
-    protected void setLendingValueIfDoesntExist(List<Book> bookList) {
-        bookList.forEach(book -> {
-            if (book.getLending() == null) {
-                book.setLending(new Lending());
-              //  book.getLending().setReturnDate("available");
-            }
-        });
-    }
-
-    void resolveReturn(HttpServletResponse resp) throws IOException {
-        if (selectedBook.getLending() == null) {
-            PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('Cannot return this book, because it is not rented');");
-            out.println("location='book.jsp';");
-            out.println("</script>");
-        } else {
-            session.setAttribute("reader", selectedBook.getLending().getReader());
-            session.setAttribute("lendings", selectedBook.getLending().getReader().getLendings());
+    /**
+     * Checks that selected Book object is on a loan using bookService method -
+     * - isLendingNull, if so, sets session attributes "reader" and "lendings"
+     * that represents Reader object, who borrowed selected book and
+     * Set of Lending objects that belongs to this reader, respectively.
+     * Sends a redirect response to ReturnBookController.
+     * Otherwise (when selected book is not on a loan), this method calls
+     * printMessage method.
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws IOException if an I/O exception of some sort has occurred
+     */
+    void returnAction(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession();
+        Login login = (Login) session.getAttribute("userLogin");
+        int bookId = Integer.parseInt(req.getParameter("selected"));
+        if (!bookService.isLendingNull(login, bookId)) {
+            Book book = bookService.getBook(login, bookId);
+            session.setAttribute("reader", book.getLending().getReader());
+            session.setAttribute("lendings", book.getLending().getReader().getLendings());
             resp.sendRedirect("return-book");
-        }
-    }
-
-    void resolveEdit() {
-        session.setAttribute("edit", selectedBook);
-        session.setAttribute("authors", authors);
-    }
-
-    void resolveDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        if (selectedBook.getLending()== null) {
-            bookService.deleteBook(selectedBook);
-            setProperAttributesForwardRequest(req, resp);
+            logger.debug("Sent a redirect response to ReturnBookController");
         } else {
-            PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('Cannot delete selected book, because it is already rented. Book must be returned to be deleted.');");
-            out.println("location='book.jsp';");
-            out.println("</script>");
+            printMessage(resp);
         }
     }
 
-    void resolveLend(HttpServletResponse resp) throws IOException {
-        if (selectedBook.getLending() == null) {
-            session.setAttribute("selBook", selectedBook);
+    /**
+     * Sets session attribute - proper Book object named "edit", using bookService method - getBook.
+     * Sends a redirect response to AddEditBookController.
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws IOException if an I/O exception of some sort has occurred
+     */
+    void editAction(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        HttpSession session = req.getSession();
+        session.setAttribute("edit", bookService.getBook((Login) session.getAttribute("userLogin"),
+                Integer.parseInt(req.getParameter("selected"))));
+        resp.sendRedirect("add-edit-book");
+        logger.debug("Sent a redirect response to AddEditBookController");
+    }
+
+    /**
+     * Deletes selected Book object if possible, then sets up-to-date list of Book objects
+     * as "books" session attribute and forwards a request to book.jsp file.
+     * If selected book can not be deleted this method calls printMessage method.
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws ServletException if an input or output error is detected when the servlet handles the request
+     * @throws IOException      if an I/O exception of some sort has occurred
+     */
+    void deleteAction(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        HttpSession session = req.getSession();
+        Login login = (Login) session.getAttribute("userLogin");
+        if (bookService.deleteIfPossible(login, Integer.parseInt(req.getParameter("selected")))) {
+            session.setAttribute("books", bookService.getBooksList(login));
+            req.getRequestDispatcher("book.jsp").forward(req, resp);
+            logger.debug("deleted book");
+        } else {
+            printMessage(resp);
+        }
+    }
+
+    /**
+     * Checks that selected book can be lent, if so, then binds proper Book object to
+     * a session, using name "selBook" and sends a redirect response to LendingController.
+     * Otherwise calls printMessage method.
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws IOException if an I/O exception of some sort has occurred
+     */
+    void lendAction(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        int bookId = Integer.parseInt(req.getParameter("selected"));
+        HttpSession session = req.getSession();
+        Login login = (Login) session.getAttribute("userLogin");
+        if (bookService.isLendingNull(login, bookId)) {
+            session.setAttribute("selBook", bookService.getBook(login, bookId));
             resp.sendRedirect("lend-book");
+            logger.debug("Sent a redirect response to LendingController");
         } else {
-            PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('Cannot lend selected book, because it is already rented.');");
-            out.println("location='book.jsp';");
-            out.println("</script>");
+            printMessage(resp);
         }
     }
 
-    protected void filterBooks(HttpServletRequest req) {
+    /**
+     * Gets List of Book objects, that contains provided title and/or author. Creates book object
+     * and sets its title and author(if has been chosen). Uses bookService method - filterBooks
+     * and created book object to get proper list of books.
+     *
+     * @param req object that contains the request the client has made of the servlet
+     * @return List of Book objects that fulfil the requirements
+     */
+    protected List<Book> getFilteredBooks(HttpServletRequest req) {
         Book book = new Book();
         book.setTitle(req.getParameter("searchTitle"));
         if (!req.getParameter("author2").equals("no author")) {
             book.setAuthor(new Author(Integer.parseInt(req.getParameter("author2"))));
         }
-        filteredBooks = bookService.filterBooks(book);
+        return bookService.filterBooks(book, (Login) req.getSession().getAttribute("userLogin"));
     }
 
-    protected void setSession(HttpSession session) {
-        this.session = session;
+    /**
+     * Creates PrintWriter object and uses it to print specified Strings. These Strings should display
+     * an alert box (in book.jsp file) with a message got using bookService.
+     *
+     * @param resp HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws IOException if an I/O exception of some sort has occurred
+     */
+    protected void printMessage(HttpServletResponse resp) throws IOException {
+        String message = bookService.getMessage();
+        PrintWriter out = resp.getWriter();
+        out.println("<script type=\"text/javascript\">");
+        out.println("alert('" + message + "');");
+        out.println("location='book.jsp';");
+        out.println("</script>");
+        logger.debug("Printed message " + message);
     }
 
+    /**
+     * Initializes bookService that has not already been initialized.
+     */
+    protected void initializeBookService() {
+        if (bookService == null) {
+            bookService = new BookService();
+            logger.debug("Initialized bookService");
+        }
+    }
+
+    /**
+     * @param bookService to set
+     */
     public void setBookService(BookService bookService) {
         this.bookService = bookService;
     }
