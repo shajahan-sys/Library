@@ -171,4 +171,11 @@ public class LendingController extends HttpServlet {
             logger.debug("Deleted 'selBook' attribute");
         }
     }
+    /**
+     * @param lendingService lendingService to set
+     */
+    protected void setLendingService(LendingService lendingService) {
+        this.lendingService = lendingService;
+    }
+
 }
