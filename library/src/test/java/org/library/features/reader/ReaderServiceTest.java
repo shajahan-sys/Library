@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 class ReaderServiceTest {
     private ReaderService readerService;
     private ReaderDAO readerDAO;
-    private final Login login = new Login();
+    private Login login;
     private List<Reader> readers;
     private Set<Lending> lendingSet;
     private Reader myReader;
@@ -33,6 +33,7 @@ class ReaderServiceTest {
         MockitoAnnotations.openMocks(this);
         readers = new ArrayList<>();
         myReader = new Reader(2);
+        login = new Login();
         readerDAO = readerDAOImpl;
         readerService.setReaderDAO(readerDAOImpl);
         when(readerDAO.getReadersList(login)).thenReturn(readers);
@@ -51,13 +52,13 @@ class ReaderServiceTest {
         assertEquals(readers, readerService.getReadersList(login));
     }
 
-    @Test
+   @Test
     void test_getReader() {
         Reader wantedReader = new Reader(3);
         readers.add(myReader);
         readers.add(wantedReader);
         readerService.getReadersList(login);
-        assertEquals(wantedReader, readerService.getReader(3));
+        assertEquals(wantedReader, readerService.getReader(login, 3));
     }
 
     @Test
@@ -66,7 +67,7 @@ class ReaderServiceTest {
         readers.add(myReader);
         readerService.getReadersList(login);
         assertAll(
-                () -> assertTrue(readerService.deleteIfPossible(2)),
+                () -> assertTrue(readerService.deleteIfPossible(login, 2)),
                 () -> verify(readerDAO).delete(myReader)
         );
     }
@@ -80,7 +81,7 @@ class ReaderServiceTest {
         readers.add(myReader);
         readerService.getReadersList(login);
         assertAll(
-                () -> assertFalse(readerService.deleteIfPossible(2)),
+                () -> assertFalse(readerService.deleteIfPossible(login, 2)),
                 () -> assertEquals(message, readerService.getMessage())
         );
     }
@@ -92,7 +93,7 @@ class ReaderServiceTest {
         readerService.getReadersList(login);
         String message = "Selected reader does not have any books to return.";
         assertAll(
-                () -> assertTrue(readerService.isReaderLendingSetEmpty(2)),
+                () -> assertTrue(readerService.isReaderLendingSetEmpty(login, 2)),
                 () -> assertEquals(message, readerService.getMessage())
         );
     }
@@ -104,6 +105,7 @@ class ReaderServiceTest {
         myReader.setLendings(lendingSet);
         readers.add(myReader);
         readerService.getReadersList(login);
-        assertFalse(readerService.isReaderLendingSetEmpty(2));
+        assertFalse(readerService.isReaderLendingSetEmpty(login, 2));
     }
+
 }
