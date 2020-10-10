@@ -1,8 +1,8 @@
 package org.library.features.lend_book;
 
-import org.library.features.book.Book;
 import org.library.features.login.Login;
-import org.library.features.reader.Reader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,108 +15,160 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+/**
+ * Controller class which is a Servlet implementation. Overrides doGet and doPost methods, uses
+ * lendingService methods, Lending class as a model. Uses RequestDispatcher object to forward
+ * a request from this servlet to lending.jsp file. Enables user to save a new Lending. Can send
+ * a redirect response to BookController and MenuController.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
 @WebServlet(urlPatterns = "/lend-book")
 public class LendingController extends HttpServlet {
     private LendingService lendingService;
-    private Login login;
-    private Reader selectedReader;
-    private Book selectedBook;
-    private HttpSession session;
+    /**
+     * Logger instance for this class
+     */
+    private final Logger logger = LoggerFactory.getLogger(LendingController.class);
 
+
+    /**
+     * Overrides doGet method. Binds proper session attributes using setAttributes method.
+     * Forwards a request from a servlet to JSP file.
+     *
+     * @param req  HttpServletRequest object that contains the request the client has made of the servlet
+     * @param resp HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws ServletException if an input or output error is detected when the servlet handles the GET request
+     * @throws IOException      if the request for the GET could not be handled
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        session = req.getSession();
-        login = (Login) session.getAttribute("userLogin");
-        selectedBook = (Book) session.getAttribute("selBook");
-        selectedReader = (Reader) session.getAttribute("selReader");
-            initializeLendingService();
-            setRequestAttributes(req);
-            req.getRequestDispatcher("lending.jsp").forward(req, resp);
+        initializeLendingService();
+        setAttributes(req);
+        req.getRequestDispatcher("lending.jsp").forward(req, resp);
+        logger.debug("doGet");
     }
 
+    /**
+     * Overrides doPost method. Decides what action to take, based on req parameter "button" value.
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws IOException      if the request for the POST could not be handled
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("button").equals("lend")) {
+            try {
                 resolveLend(req, resp);
-            //  removeSessionAttributes();
-            //   resp.sendRedirect("books");
+            } catch (ParseException e) {
+                e.printStackTrace();
+                logger.error(e.getMessage());
+            }
         } else if (req.getParameter("button").equals("cancel")) {
-            removeSessionAttributes();
+            removeSessionAttributes(req);
             resp.sendRedirect("menu");
+            logger.debug("Cancel");
         }
 
     }
 
-    protected void setRequestAttributes(HttpServletRequest req) {
-        req.setAttribute("books", lendingService.getAvailableBooksList(login));
-        req.setAttribute("readers", lendingService.getReadersList(login));
-        if (selectedBook != null) {
-            req.setAttribute("selBook", selectedBook);
-        }
-        if (selectedReader != null) {
-            req.setAttribute("selReader", selectedReader);
-        }
-
+    /**
+     * Sets session attributes "avbBooks" and "myReaders" using lendingService
+     * methods - getAvailableBooksList and getReadersList respectively.
+     *
+     * @param req object that contains the request the client has made of the servlet
+     */
+    protected void setAttributes(HttpServletRequest req) {
+        HttpSession session = req.getSession();
+        Login login = (Login) session.getAttribute("userLogin");
+        session.setAttribute("avbBooks", lendingService.getAvailableBooksList(login));
+        session.setAttribute("myReaders", lendingService.getReadersList(login));
+        logger.debug("Set session attributes");
     }
 
+    /**
+     * Initializes lendingService that has not already been initialized.
+     */
     private void initializeLendingService() {
         if (lendingService == null) {
             lendingService = new LendingService();
+            logger.debug("Initialized lendingService");
         }
     }
 
+    /**
+     * Returns a proper Lending object, that is created by using lendingService methods
+     * with given req parameters.
+     *
+     * @param req object that contains the request the client has made of the servlet
+     * @return Lending object that contains data provided by user
+     * @throws ParseException when an error has been reached unexpectedly while parsing
+     */
     protected Lending getProperLendingObject(HttpServletRequest req) throws ParseException {
+        Login login = (Login) req.getSession().getAttribute("userLogin");
         Lending lending = new Lending();
-        lending.setBook(lendingService.getBook(Integer.parseInt(req.getParameter("book"))));
-        lending.setReader(lendingService.getReader(Integer.parseInt(req.getParameter("reader"))));
+        lending.setBook(lendingService.getBook(login, Integer.parseInt(req.getParameter("book"))));
+        lending.setReader(lendingService.getReader(login, Integer.parseInt(req.getParameter("reader"))));
         lending.setReturnDate(new SimpleDateFormat("yyyy-MM-dd").parse(req.getParameter("date")));
-        lending.setLogin(login);
+        logger.debug("Created Lending object");
         return lending;
     }
 
-    protected boolean isDateFormatProper(String input) {
-        return input.matches("([0-9]{4})-([0-9]{2})-([0-9]{2})");
-    }
-
-    protected void resolveLend(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
+    /**
+     * Saves Lending object if date format is proper, sets session attributes to inform that changes
+     * might have occurred calls removeSessionAttributes method and sends a redirect response
+     * to BookController. If date format is wrong this method calls printMessage method.
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws IOException    if the request for the POST could not be handled
+     * @throws ParseException when an error has been reached unexpectedly while parsing
+     */
+    protected void resolveLend(HttpServletRequest req, HttpServletResponse resp) throws IOException, ParseException {
+        if (lendingService.isDateFormatProper(req.getParameter("date"))) {
             lendingService.saveLending(getProperLendingObject(req));
-            removeSessionAttributes();
+            req.getSession().setAttribute("readersMightHaveChanged", true);
+            req.getSession().setAttribute("booksMightHaveChanged", true);
+            removeSessionAttributes(req);
             resp.sendRedirect("books");
-        } catch (ParseException e) {
-            printMessage("The specified date format is not valid. Use the yyyy-mm-dd format.", resp);
-            e.printStackTrace();
-
-     /*   }
-        if (isDateFormatProper(req.getParameter("date"))) {
-            lendingService.saveLending(getProperLendingObject(req));
-            removeSessionAttributes();
-            resp.sendRedirect("books");
+            logger.debug("Lent a book");
         } else {
-            printMessage("The specified date format is not valid. Use the yyyy-mm-dd format.", resp);
-           PrintWriter out = resp.getWriter();
-            out.println("<script type=\"text/javascript\">");
-            out.println("alert('The specified date format is not valid. Use the yyyy-mm-dd format.');");
-            out.println("location='lending.jsp';");
-            out.println("</script>");
-
-            */
+            printMessage(resp);
         }
     }
-    protected void printMessage(String message, HttpServletResponse resp) throws IOException {
+
+    /**
+     * Creates PrintWriter object and uses it to print specified Strings. These Strings should display
+     * an alert box (in lending.jsp file) with a message got using lendingService.
+     *
+     * @param resp HttpServletResponse object that contains the response the servlet sends to the client
+     * @throws IOException if an I/O exception of some sort has occurred
+     */
+    protected void printMessage(HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         out.println("<script type=\"text/javascript\">");
-        out.println("alert('" + message + "');");
+        out.println("alert('" + lendingService.getMessage() + "');");
         out.println("location='lending.jsp';");
         out.println("</script>");
+        logger.debug("Printed message");
     }
 
-    protected void removeSessionAttributes() {
-        if (selectedReader != null) {
+    /**
+     * Removes session attributes "selReader" and "selBook" if they exist
+     *
+     * @param req  object that contains the request the client has made of the servlet
+     */
+    protected void removeSessionAttributes(HttpServletRequest req) {
+        HttpSession session = req.getSession();
+        if (session.getAttribute("selReader") != null) {
             session.removeAttribute("selReader");
+            logger.debug("Deleted 'selReader' attribute");
         }
-        if (selectedBook != null) {
+        if (session.getAttribute("selBook") != null) {
             session.removeAttribute("selBook");
+            logger.debug("Deleted 'selBook' attribute");
         }
     }
 }
