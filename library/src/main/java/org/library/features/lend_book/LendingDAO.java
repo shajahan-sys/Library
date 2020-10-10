@@ -7,7 +7,7 @@ import org.library.features.reader.Reader;
 
 import java.util.List;
 
-public interface LendingBookDAO {
+public interface LendingDAO {
     void setSessionFactory(SessionFactory sessionFactory);
 
     List<Reader> getReadersList(Login login);
