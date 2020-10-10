@@ -116,6 +116,12 @@ public class LendingService {
             return false;
         }
     }
+    /**
+     * @param lendingDAO object to set
+     */
+    protected void setLendingDAO(LendingDAO lendingDAO) {
+        this.lendingDAO = lendingDAO;
+    }
 
     /**
      * @return message
