@@ -92,10 +92,8 @@ class ReaderControllerTest {
         when(readerService.isReaderLendingSetEmpty(login, 1)).thenReturn(false);
         readerController.returnAction(req, resp);
         assertAll(
-                () -> verify(session).setAttribute("lendings", lending),
                 () -> verify(session).setAttribute("reader", reader),
-                () -> verify(resp).sendRedirect(captor.capture()),
-                () -> assertEquals("return-book", captor.getValue())
+                () -> verify(resp).sendRedirect("return-book")
         );
     }
 
@@ -147,10 +145,7 @@ class ReaderControllerTest {
         when(req.getParameter("button")).thenReturn("edit");
         when(req.getParameter("selected")).thenReturn("1");
         readerController.doPost(req, resp);
-        assertAll(
-                () -> verify(resp).sendRedirect(captor.capture()),
-                () -> assertEquals("add-edit-reader", captor.getValue())
-        );
+       verify(resp).sendRedirect("add-edit-reader");
     }
 
     @Test
@@ -159,29 +154,20 @@ class ReaderControllerTest {
         when(req.getParameter("selected")).thenReturn("1");
         when(readerService.getReader(login, 1)).thenReturn(new Reader());
         readerController.doPost(req, resp);
-        assertAll(
-                () -> verify(resp).sendRedirect(captor.capture()),
-                () -> assertEquals("lend-book", captor.getValue())
-        );
+         verify(resp).sendRedirect("lend-book");
     }
 
     @Test
     void test_doPost_when_button_name_equals_add_new() throws ServletException, IOException {
         when(req.getParameter("button")).thenReturn("add new");
         readerController.doPost(req, resp);
-        assertAll(
-                () -> verify(resp).sendRedirect(captor.capture()),
-                () -> assertEquals("add-edit-reader", captor.getValue())
-        );
+         verify(resp).sendRedirect("add-edit-reader");
     }
 
     @Test
     void test_doPost_when_button_name_equals_menu() throws ServletException, IOException {
         when(req.getParameter("button")).thenReturn("menu");
         readerController.doPost(req, resp);
-        assertAll(
-                () -> verify(resp).sendRedirect(captor.capture()),
-                () -> assertEquals("menu", captor.getValue())
-        );
+        verify(resp).sendRedirect("menu");
     }
 }
