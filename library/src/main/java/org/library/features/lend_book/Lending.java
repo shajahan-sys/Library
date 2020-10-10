@@ -1,28 +1,32 @@
 package org.library.features.lend_book;
 
 import org.library.features.book.Book;
-import org.library.features.login.Login;
 import org.library.features.reader.Reader;
 
 import javax.persistence.*;
-
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
 @Entity
 @Table(name = "lending")
-public class Lending {
+public class Lending implements Serializable {
+    private static final long serialVersionUID =12343L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotNull
     @OneToOne
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
+    @NotNull
+    @Temporal(TemporalType.DATE)
     @Column(name = "return_date")
-    private String returnDate;
+    private Date returnDate;
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "reader_id", nullable = false)
     private Reader reader;
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Login login;
 
     public Lending() {
     }
@@ -55,19 +59,11 @@ public class Lending {
         return reader;
     }
 
-    public String getReturnDate() {
+    public Date getReturnDate() {
         return returnDate;
     }
 
-    public void setReturnDate(String returnDate) {
+    public void setReturnDate(Date returnDate) {
         this.returnDate = returnDate;
-    }
-
-    public Login getLogin() {
-        return login;
-    }
-
-    public void setLogin(Login login) {
-        this.login = login;
     }
 }
