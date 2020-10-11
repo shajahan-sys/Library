@@ -12,6 +12,9 @@ import java.util.Map;
 /**
  * Service class that contains business logic for author feature. Enables Controller class
  * to get demanded objects and to delete Author objects using AuthorDAO instance.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
  */
 public class AuthorService {
     private AuthorDAO authorDAO;

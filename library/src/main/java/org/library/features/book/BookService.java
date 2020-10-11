@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
  * Service class that contains business logic for book feature. Enables Controller class
  * to get demanded objects, filter books, check book's lending and delete Book objects
  * using BookDAO instance. Also sets proper message if wanted action can't be executed.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
  */
 public class BookService {
     private BookDAO bookDAO;

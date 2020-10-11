@@ -12,6 +12,9 @@ import java.util.Map;
 /**
  * Service class that contains business logic for reader feature. Enables Controller class
  * to get demanded objects and to delete Reader objects using ReaderDAO instance.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
  */
 public class ReaderService {
     private ReaderDAO readerDAO;
