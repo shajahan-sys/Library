@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.library.features.logout.LogoutControllerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2020-10-11T18:56:56" hostname="USER-KOMPUTER" time="1.879">
-  <properties/>
-  <testcase name="userLoginAttributeShouldBeNullAfterPostMethod()" classname="org.library.features.logout.LogoutControllerTest" time="1.854"/>
-  <testcase name="shouldRedirectToLogin()" classname="org.library.features.logout.LogoutControllerTest" time="0.023"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
