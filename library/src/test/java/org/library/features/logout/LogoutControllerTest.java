@@ -23,14 +23,13 @@ class LogoutControllerTest {
     @Mock
     private HttpServletResponse resp;
     private LogoutController logoutController;
+    @Mock
     private HttpSession session;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        req = mock(HttpServletRequest.class);
-        session = mock(HttpSession.class);
-        when(req.getSession()).thenReturn(session);
+         when(req.getSession()).thenReturn(session);
         logoutController = new LogoutController();
     }
 
