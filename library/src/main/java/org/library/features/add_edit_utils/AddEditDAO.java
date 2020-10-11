@@ -10,7 +10,13 @@ import org.hibernate.SessionFactory;
  * @version %I%, %G%
  */
 public interface AddEditDAO<T> {
+    /**
+     * @param sessionFactory to set
+     */
     void setSessionFactory(SessionFactory sessionFactory);
 
+    /**
+     * @param object to save
+     */
     void save(T object);
 }
