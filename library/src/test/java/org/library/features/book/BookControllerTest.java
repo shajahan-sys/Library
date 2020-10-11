@@ -165,7 +165,6 @@ class BookControllerTest {
         bookController.returnAction(req, resp);
         assertAll(
                 () -> verify(session).setAttribute("reader", myReader),
-                () -> verify(session).setAttribute("lendings", myReader.getLendings()),
                 () -> verify(resp).sendRedirect("return-book")
         );
     }
