@@ -23,14 +23,16 @@ public class ReaderDAOImpl implements ReaderDAO{
     public List<Reader> getReadersList(Login login) {
         List readers;
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
+        Session session = null;
+        try{
+        session = sessionFactory.openSession();
             transaction = session.getTransaction();
             transaction.begin();
             readers = session.createQuery("from Reader where user_id = :id order by surname")
                     .setParameter("id", login.getId())
                     .getResultList();
             transaction.commit();
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             try {
                 if (transaction != null)
@@ -39,6 +41,10 @@ public class ReaderDAOImpl implements ReaderDAO{
                 logger.error("Transaction rollback not successful");
             }
             throw e;
+        }
+        finally {
+            assert session != null;
+            session.close();
         }
         return readers;
     }

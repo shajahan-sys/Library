@@ -31,7 +31,7 @@
                             Book Title : <input type="text" name="title" value="${edit.getTitle()}"><br>
                            Author : <select name="author1" id="1">
                            <option value="no author" >select author</option>
-                             <c:forEach var="author" items="${authors}" >
+                             <c:forEach var="author" items="${authorList}" >
                                 <option value="${author.getId()}"
                                 ${author.getSurname() == edit.getAuthor().getSurname() ? 'selected="selected"' : ''}>
                                ${author.getSurname()}
@@ -45,7 +45,7 @@
                         Book Title : <input type="text" name="title"><br>
                            Author : <select name="author1" id="1">
                            <option value="no author" >select author</option>
-                             <c:forEach var="author" items="${authors}" >
+                             <c:forEach var="author" items="${authorList}" >
                                 <option value="${author.getId()}">
                                ${author.getSurname()}
                                 </option>

@@ -31,7 +31,7 @@ public class LoginController extends HttpServlet {
     /**
      * Logger instance for this class
      */
-    private static final Logger logger = LoggerFactory.getLogger(ReaderController.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     /**
      * Overrides doGet method. Forwards a request from a servlet to a JSP file.

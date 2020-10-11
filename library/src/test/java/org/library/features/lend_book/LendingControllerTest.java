@@ -55,12 +55,12 @@ class LendingControllerTest {
 
     @Test
     void test_removeSessionAttributes() {
-        session.setAttribute("selReader", new Reader());
-        session.setAttribute("selBook", new Book());
+        when(session.getAttribute("selReader")).thenReturn(new Reader());
+        when(session.getAttribute("selBook")).thenReturn(new Book());
         lendingController.removeSessionAttributes(req);
         assertAll(
-                () -> assertNull(session.getAttribute("selBook")),
-                () -> assertNull(session.getAttribute("selReader"))
+                () -> verify(session).removeAttribute("selBook"),
+                () -> verify(session).removeAttribute("selReader")
         );
     }
 

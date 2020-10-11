@@ -143,11 +143,11 @@ public class BookService {
     }
 
     /**
-     * Removes a List of Book objects from booksByLogin map, using login as a key.
+     * Removes a List of Book objects from booksByLogin map that is associated with given login.
      *
      * @param login Login object that is a key in booksByLogin map
      */
-    protected void deleteFormMap(Login login) {
+    protected void deleteFromMap(Login login) {
         booksByLogin.remove(login);
         logger.debug("Deleted list from map");
     }

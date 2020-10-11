@@ -6,10 +6,10 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.library.hibernate_util.HibernateUtil;
 import org.mindrot.jbcrypt.BCrypt;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
+import org.hibernate.query.Query;
 
 /**
  * LoginDAO implementation. Methods can be used to hash password and check if
@@ -26,9 +26,7 @@ import javax.persistence.Query;
  * @version %I%, %G%
  */
 public class LoginDAOImpl implements LoginDao {
-    private Login login;
-    private String hashedPassword;
-    private Verifiable verifiable;
+
     private SessionFactory sessionFactory;
     private final Logger logger = LogManager.getLogger(LoginDAOImpl.class);
 
@@ -37,15 +35,6 @@ public class LoginDAOImpl implements LoginDao {
         this.sessionFactory = sessionFactory;
     }
 
-    /**
-     * Hashes String plain text password
-     *
-     * @param plainTextPassword String password
-     * @return hashed password that can be stored in database
-     */
-    protected String hashPassword(String plainTextPassword) {
-        return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
-    }
 
     /**
      * Fetches adequate id (according to username) form database
@@ -53,46 +42,7 @@ public class LoginDAOImpl implements LoginDao {
      *
      * @param login Login object
      */
-    protected void setProperLoginId(Login login) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            Query userId = session.createQuery("select id from Login where user_name = :username")
-                    .setParameter("username", login.getUserName());
-            login.setId((Integer) userId.getSingleResult());
-            session.getTransaction().commit();
-        } catch (RuntimeException e) {
-            logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
-        }
-    }
 
-    /**
-     * Checks if passed to this method login has a password that matches hashed
-     * password (fetched from database in doesUserAlreadyExist method). If so then it
-     * calls setProperLoginId method and passes login to it. When password is wrong
-     * calls setMessageInVerifiable, passes String "Wrong password!" and returns false.
-     *
-     * @param login Login object
-     * @return true if login object password matches hashed password, otherwise false
-     */
-    @Override
-    public boolean isLoginInputCorrect(Login login) {
-        if (BCrypt.checkpw(login.getPassword(), hashedPassword)) {
-            setProperLoginId(login);
-            return true;
-        } else {
-            setMessageInVerifiable("Wrong password!");
-            return false;
-        }
-    }
 
     /**
      * Saves new account to database. First hashes password and sets it as login password,
@@ -102,7 +52,6 @@ public class LoginDAOImpl implements LoginDao {
      */
     @Override
     public void saveNewAccount(Login login) {
-        login.setPassword(hashPassword(login.getPassword()));
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
@@ -136,43 +85,61 @@ public class LoginDAOImpl implements LoginDao {
      */
     @Override
     public boolean doesUserAlreadyExist(Login login) {
-        this.login = login;
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            Query getHashPw = session.createQuery("select password from Login where user_name = :username")
-                    .setParameter("username", login.getUserName());
-            hashedPassword = (String) getHashPw.getSingleResult();
-            session.getTransaction().commit();
-            setMessageInVerifiable("User already exist, try different login or login instead of creating new account");
-            return true;
-        } catch (NoResultException n) {
-            setMessageInVerifiable("There is no such a user");
+        // this.login = login;
+        try {
+            Session session = sessionFactory.openSession();
+            org.hibernate.query.Query getHashPw = session.createQuery("select 1 from Login where user_name = :username");
+            getHashPw.setParameter("username", login.getUserName());
+            return getHashPw.uniqueResult() != null;
+            // hashedPassword = (String) getHashPw.getSingleResult();
+            //   return (getHashPw.() != null);
+            //   session.getTransaction().commit();
+            //     setMessageInVerifiable("User already exist, try different login or login instead of creating new account");
+            //  return true;
+        } catch (HibernateException e) {
+            e.printStackTrace();
+            logger.error("Couldn't ");
             return false;
-        } catch (RuntimeException e) {
-            logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
         }
     }
 
     @Override
-    public void setVerifier(Verifiable verifiable) {
-        this.verifiable = verifiable;
-    }
-
-    protected void setMessageInVerifiable(String message) {
-        verifiable.setMessage(message);
+    public String getHashedPassword(Login login) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            Query getHashPw = session.createQuery("select password from Login where user_name = :username")
+                    .setParameter("username", login.getUserName());
+              return (String) getHashPw.uniqueResult();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return null;
+        } finally {
+            assert session != null;
+            session.close();
+        }
     }
 
     @Override
-    public Login getLogin() {
+    public Login getLogin(Login login) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+              Query id = session.createQuery("select id from Login where user_name = :username")
+                    .setParameter("username", login.getUserName());
+            //  setMessageInVerifiable("User already exist, try different login or login instead of creating new account");
+       //     login.setId((Integer) id.uniqueResult());
+            if (id.uniqueResult() != null){
+                login.setId((Integer) id.uniqueResult());
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        finally {
+            assert session != null;
+            session.close();
+        }
         return login;
     }
+
 }

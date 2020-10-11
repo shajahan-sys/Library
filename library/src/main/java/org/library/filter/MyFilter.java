@@ -7,10 +7,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/authors", "/books", "/lend-book", "/menu", "/readers", "/return-book", "/add-edit-author", "/add-edit-reader", "/add-edit-book"} )
+/**
+ * This class is a Filter implementation. Checks if user is logged in using session
+ * attribute "userLogin", if not sends a redirect response to LoginController.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
+@WebFilter(urlPatterns = {"/authors", "/books", "/lend-book", "/menu", "/readers", "/return-book", "/add-edit-author", "/add-edit-reader", "/add-edit-book"})
 public class MyFilter implements Filter {
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
 
     }
 

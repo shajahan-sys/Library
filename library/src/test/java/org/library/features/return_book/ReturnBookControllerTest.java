@@ -45,6 +45,14 @@ class ReturnBookControllerTest {
     @AfterEach
     void tearDown() {
         returnBookController = null;
+        login = null;
+    }
+
+    @Test
+    void test_removeSessionAttributeReader() {
+        when(session.getAttribute("reader")).thenReturn(new Reader());
+        returnBookController.removeSessionAttributeReader(req);
+        verify(session).removeAttribute("reader");
     }
 
     @Test

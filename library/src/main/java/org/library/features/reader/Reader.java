@@ -9,9 +9,17 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
 
+/**
+ * POJO class that represents entity Reader
+ *
+ * @author Barbara Grabowska
+ * @version %I%
+ */
 @Entity
 @Table(name = "readers")
 public class Reader implements Serializable {
+    private static final long serialVersionUID =12345L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

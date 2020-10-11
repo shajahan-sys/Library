@@ -4,7 +4,7 @@
 <html>
     <head>
     <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" >
-        <title>Management Page</title>
+        <title>Lend book</title>
     </head>
     <body>
       <%
@@ -12,21 +12,21 @@
                         response.setHeader("Pragma", "no-cache");
                         response.setHeader("Expires", "0");
                 if(session.getAttribute("userLogin")==null){
-                response.sendRedirect("login.jsp");
+                response.sendRedirect("login");
                 }
                 boolean isReaderSelected = false;
-                if(request.getAttribute("selReader") != null)
+                if(session.getAttribute("selReader") != null)
                 {isReaderSelected = true;}
                 boolean isBookSelected = false;
-                if(request.getAttribute("selBook") != null){
+                if(session.getAttribute("selBook") != null){
                 isBookSelected = true;
                 }
                 %>
             <div align="left">
-                           <form name="myForm" action="lending" method="post">
+                           <form name="myForm" action="lend-book" method="post">
                               Book : <select name="book" id="1">
                                                     <option value="no book" >select book</option>
-                                                      <c:forEach var="book" items="${books}" >
+                                                      <c:forEach var="book" items="${avbBooks}" >
                                                          <option value="${book.getId()}"
                                                          <%if(isBookSelected){%>
                                                          ${book.getId() == selBook.getId() ? 'selected="selected"' : ''}<%}%>>
@@ -36,7 +36,7 @@
                                                      </select><br>
                                Reader : <select name="reader" id="2">
                                      <option value="no reader" >select reader</option>
-                                       <c:forEach var="reader" items="${readers}" >
+                                       <c:forEach var="reader" items="${myReaders}" >
                                           <option value="${reader.getId()}"
                                           <%if(isReaderSelected){%>
                                           ${reader.getId() == selReader.getId() ? 'selected="selected"' : ''}<%}%>>
@@ -56,7 +56,7 @@
                        var selBook = e.options[e.selectedIndex].value;
                        var selReader = f.options[f.selectedIndex].value;
                         var x = document.forms["myForm"]["date"].value;
-                        if (x == "" || selReader == "select reader" || selBook == "select book") {
+                        if (x == "" || selReader == "no reader" || selBook == "no book") {
                           alert("Fill in all fields!");
                           return false;
                         }

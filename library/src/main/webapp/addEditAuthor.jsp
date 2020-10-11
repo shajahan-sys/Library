@@ -21,7 +21,6 @@
          if(session.getAttribute("userLogin")==null){
          response.sendRedirect("login.jsp");
        } %>
-
         <form name="myForm" action="add-edit-author" method="post">
          <c:choose>
           <c:when test="${edit != null}">

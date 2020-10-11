@@ -25,10 +25,10 @@ public class MenuController extends HttpServlet {
      * Overrides doGet method. Forwards a request from a servlet to a JSP file,
      * sets login object username as a session attribute "user".
      *
-     * @param req  HttpServletRequest object that contains the request the client has made of the servlet
+     * @param req HttpServletRequest object that contains the request the client has made of the servlet
      * @param resp HttpServletResponse object that contains the response the servlet sends to the client
      * @throws ServletException if an input or output error is detected when the servlet handles the GET request
-     * @throws IOException      if the request for the GET could not be handled
+     * @throws IOException if the request for the GET could not be handled
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

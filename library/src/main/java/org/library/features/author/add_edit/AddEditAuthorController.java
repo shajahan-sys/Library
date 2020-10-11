@@ -6,8 +6,13 @@ import org.library.features.author.Author;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
+/**
+ * Controller class which is a Servlet implementation, extends AddEditController abstract class.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
 @WebServlet(urlPatterns = "/add-edit-author")
 public class AddEditAuthorController extends AddEditController<Author> {
     private AddEditAuthorService addEditAuthorService;
@@ -28,18 +33,23 @@ public class AddEditAuthorController extends AddEditController<Author> {
 
     @Override
     protected Author createObjectWithProperData(HttpServletRequest req) {
+        setSessionAttribute(req);
         Author author = new Author();
-        author.setLogin(getLogin());
+        author.setLogin(getLogin(req));
         author.setSurname(req.getParameter("surname"));
-        if (getToEdit() != null){
-            author.setId(getToEdit().getId());
+        if (getToEdit(req) != null){
+            author.setId(getToEdit(req).getId());
         }
         return author;
     }
 
-    @Override
-    protected void deleteNoLongerValidSessionAttribute(HttpSession session) {
-        session.removeAttribute("authors");
+    /**
+     * Sets session attribute "booksMightHaveChanged".
+     *
+     * @param req object that contains the request the client has made of the servlet
+     */
+    protected void setSessionAttribute(HttpServletRequest req){
+        req.getSession().setAttribute("booksMightHaveChanged", true);
     }
 
     @Override
@@ -51,4 +61,5 @@ public class AddEditAuthorController extends AddEditController<Author> {
     protected String getProperLocationName() {
         return "authors";
     }
-}
+
+    }

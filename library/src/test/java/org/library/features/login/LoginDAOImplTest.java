@@ -36,7 +36,7 @@ class LoginDAOImplTest {
         sessionFactory.close();
     }
 
-    @Test
+   /* @Test
     void theSameStringShouldNotBeTheSameAsHashedPassword() {
         String password = "root";
         String unexpected = loginDAO.hashPassword(password);
@@ -87,6 +87,8 @@ class LoginDAOImplTest {
         assertFalse(loginDAO.isLoginInputCorrect(properLoginWithWrongPassword));
         deleteProperLogin();
     }
+
+   */
 
     void saveProperLogin() {
         loginDAO.saveNewAccount(properLogin);

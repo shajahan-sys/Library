@@ -13,7 +13,9 @@
         response.setHeader("Expires", "0");
         if(session.getAttribute("userLogin")==null){
             response.sendRedirect("login.jsp");
-        }%>
+        }
+       %>
+       <c:if test="${readers.size() > 0}">
             <div align="left">
             List of Readers<br>
              <table border="1" cellpadding="5">
@@ -43,7 +45,10 @@
             <INPUT TYPE="submit" name="button" VALUE="return"/>
             <INPUT TYPE="submit" name="button" VALUE="lend"/>
             <INPUT TYPE="submit" name="button" VALUE="delete"/>
-        </form>
+        </form> </c:if>
+               <c:if test="${readers.size() == 0}">
+        Add your readers in order to display them.
+        </c:if>
          <form action="readers" method="post">
              <input type="submit" name="button" value="add new">
              <input type="submit" name="button" value="menu">

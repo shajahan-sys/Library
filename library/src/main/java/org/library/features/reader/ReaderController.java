@@ -148,7 +148,7 @@ public class ReaderController extends HttpServlet {
         int readerId = Integer.parseInt(req.getParameter("selected"));
         if (!readerService.isReaderLendingSetEmpty(login, readerId)) {
             Reader reader = readerService.getReader(login, readerId);
-            session.setAttribute("lendings", reader.getLendings());
+        //    session.setAttribute("lendings", reader.getLendings());
             session.setAttribute("reader", reader);
             resp.sendRedirect("return-book");
             logger.debug("Sent a redirect response to ReturnBookController");
@@ -167,15 +167,27 @@ public class ReaderController extends HttpServlet {
     protected void setProperAttributes(HttpServletRequest req) {
         HttpSession session = req.getSession();
         Login login = (Login) session.getAttribute("userLogin");
-        if (session.getAttribute("saved") != null) {
-            readerService.deleteFromMap(login);
-            session.removeAttribute("saved");
-            logger.debug("Removed list from map and 'saved' attribute");
-        }
+        deleteFromMapIfNeeded(req, "saved", "readersMightHaveChanged");
         session.setAttribute("readers", readerService.getReadersList(login));
+        System.out.println(readerService.getReadersList(login).size());
         logger.debug("Set session attribute readers");
     }
-
+    /**
+     * Removes session attributes if exist.
+     *
+     * @param req object that contains the request the client has made of the servlet
+     * @param attributeNames Strings that represent names of session attributes to remove
+     */
+    protected void deleteFromMapIfNeeded(HttpServletRequest req, String... attributeNames){
+        HttpSession session = req.getSession();
+        for (String name:attributeNames
+        ) {
+            if (session.getAttribute(name) != null) {
+                readerService.deleteFromMap((Login) session.getAttribute("userLogin"));
+                session.removeAttribute(name);
+            }
+        }
+    }
     /**
      * Creates PrintWriter object and uses it to print specified Strings. These Strings
      * should display an alert box (in reader.jsp file) with a message got using
@@ -190,7 +202,7 @@ public class ReaderController extends HttpServlet {
         out.println("alert('" + readerService.getMessage() + "');");
         out.println("location='reader.jsp';");
         out.println("</script>");
-        logger.debug("Printed meessage");
+        logger.debug("Printed message");
     }
 
     /**

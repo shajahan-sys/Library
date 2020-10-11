@@ -6,8 +6,13 @@ import org.library.features.reader.Reader;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
+/**
+ * Controller class which is a Servlet implementation, extends AddEditController abstract class.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
 @WebServlet(urlPatterns = "add-edit-reader")
 public class AddEditReaderController extends AddEditController<Reader> {
     private AddEditReaderService addEditReaderService;
@@ -29,17 +34,12 @@ public class AddEditReaderController extends AddEditController<Reader> {
     protected Reader createObjectWithProperData(HttpServletRequest req) {
         Reader reader = new Reader();
         reader.setName(req.getParameter("name"));
-        reader.setLogin(getLogin());
+        reader.setLogin(getLogin(req));
         reader.setSurname(req.getParameter("surname"));
-        if (getToEdit() != null) {
-            reader.setId(getToEdit().getId());
+        if (getToEdit(req) != null) {
+            reader.setId(getToEdit(req).getId());
         }
         return reader;
-    }
-
-    @Override
-    protected void deleteNoLongerValidSessionAttribute(HttpSession session) {
-        session.removeAttribute("readers");
     }
 
     @Override
@@ -51,4 +51,5 @@ public class AddEditReaderController extends AddEditController<Reader> {
     protected String getProperLocationName() {
         return "readers";
     }
+
 }

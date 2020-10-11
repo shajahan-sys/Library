@@ -15,6 +15,8 @@ import java.io.IOException;
  * and doGet methods, uses T object as a model. Enables user to save a T object.
  *
  * @param <T> Model for class
+ * @author Barbara Grabowska
+ * @version %I%, %G%
  */
 public abstract class AddEditController<T> extends HttpServlet {
     /**

@@ -1,7 +1,5 @@
 package org.library.hibernate_util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -10,11 +8,25 @@ import org.library.features.book.Book;
 import org.library.features.login.Login;
 import org.library.features.lend_book.Lending;
 import org.library.features.reader.Reader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * This class provides a Hibernate SessionFactory object.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
 public class HibernateUtil {
-    private static SessionFactory sessionFactory ;
+    private static SessionFactory sessionFactory;
+    /**
+     * Logger instance for this class
+     */
+    private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
 
-    private static final Logger logger = LogManager.getLogger(HibernateUtil.class);
+    /**
+     * Configures and creates a proper SessionFactory object
+     */
     private static void configure() {
         Configuration configuration = new Configuration().configure();
         configuration.addAnnotatedClass(Author.class);
@@ -26,6 +38,10 @@ public class HibernateUtil {
         sessionFactory = configuration.buildSessionFactory(builder.build());
         logger.debug("Configured SessionFactory");
     }
+
+    /**
+     * @return SessionFactory object
+     */
     public static SessionFactory getSessionFactory() {
         configure();
         return sessionFactory;

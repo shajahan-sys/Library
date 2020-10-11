@@ -7,13 +7,12 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.library.features.book.Book;
-import org.library.features.book.BookDAOImpl;
 import org.library.features.login.Login;
 import org.library.features.reader.Reader;
 
 import java.util.List;
 
-public class LendingDAOImpl implements LendingBookDAO {
+public class LendingDAOImpl implements LendingDAO {
     private SessionFactory sessionFactory;
     private final Logger logger = LogManager.getLogger(LendingDAOImpl.class);
 

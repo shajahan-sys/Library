@@ -1,5 +1,7 @@
 package org.library.features.return_book;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,6 +13,8 @@ import java.util.List;
 
 public class ReturnBookDAOImpl implements ReturnBookDAO {
     private SessionFactory sessionFactory;
+    private final Logger logger = LogManager.getLogger(ReturnBookDAOImpl.class);
+
 
     @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
@@ -24,13 +28,18 @@ public class ReturnBookDAOImpl implements ReturnBookDAO {
         try (Session session = sessionFactory.openSession()) {
             transaction = session.getTransaction();
             transaction.begin();
-            readers = session.createQuery("from Reader where user_id = :id")
+            readers = session.createQuery("from Reader where user_id = :id order by surname")
+                 //   .setParameter("id", login.getId())
                     .setParameter("id", login.getId())
                     .getResultList();
             transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
+        } catch (RuntimeException e) {
+            logger.error(e.getMessage());
+            try {
+                if (transaction != null)
+                    transaction.rollback();
+            } catch (HibernateException e1) {
+                logger.error("Transaction rollback not successful");
             }
             throw e;
         }
@@ -48,11 +57,12 @@ public class ReturnBookDAOImpl implements ReturnBookDAO {
             }
             transaction.commit();
         } catch (RuntimeException e) {
+            logger.error(e.getMessage());
             try {
                 if (transaction != null)
                     transaction.rollback();
             } catch (HibernateException e1) {
-                //  log.error("Transaction roleback not succesful");
+                  logger.error("Transaction rollback not successful");
             }
             throw e;
         }

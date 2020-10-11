@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Service class that contains business logic for lend_book feature. Enables Controller class
  * to get demanded objects and to save Lending objects using LendingDAO instance.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
  */
 public class LendingService {
     private LendingDAO lendingDAO;

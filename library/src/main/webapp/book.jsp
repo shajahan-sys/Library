@@ -19,13 +19,14 @@
            Book Title : <input type="text" name ="searchTitle">
            Author : <select name="author2">
               <option value="no author">select author</option>
-                <c:forEach var="author" items="${authors}">
+                <c:forEach var="author" items="${authorList}">
                  <option value="${author.getId()}" >${author.getSurname()}
                  </option>
                 </c:forEach>
                </select>
               <input type ="submit" name="button" value="search"><br>
           </form>
+       <c:if test="${books.size() > 0}">
           <table border="1" cellpadding="5">
             <tr>
                 <th>Title</th>
@@ -56,6 +57,10 @@
                 <INPUT TYPE="submit" name="button" VALUE="return"/>
                 <INPUT TYPE="submit" name="button" VALUE="delete"/>
             </form>
+            </c:if>
+            <c:if test="${books.size() == 0}">
+            Add your books in order to display them.
+            </c:if>
             <form action="books" method="post">
               <input type="submit" name="button" value="add new">
               <input type="submit" name="button" value="menu">

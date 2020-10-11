@@ -1,6 +1,5 @@
 package org.library.features.return_book;
 
-import org.library.features.lend_book.Lending;
 import org.library.features.login.Login;
 import org.library.features.reader.Reader;
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Set;
 
 /**
  * Controller class which is a Servlet implementation. Overrides doGet and doPost methods, uses
@@ -126,15 +124,6 @@ public class ReturnBookController extends HttpServlet {
         logger.debug("Set active readers");
     }
 
-    /**
-     * Initializes returnBookService that has not already been initialized.
-     */
-    protected void initializeReturnBookService() {
-        if (returnBookService == null) {
-            returnBookService = new ReturnBookService();
-            logger.debug("Initialized returnBookService");
-        }
-    }
 
     /**
      * Sets proper req attributes if req parameter "selReader" doesn't equal "no reader".
@@ -147,10 +136,19 @@ public class ReturnBookController extends HttpServlet {
         if (!readerId.equals("no reader")) {
             Reader reader = returnBookService.getReader(
                     (Login) req.getSession().getAttribute("userLogin"), Integer.parseInt(readerId));
-            Set<Lending> lendingSet = reader.getLendings();
-            req.setAttribute("lendings", lendingSet);
             req.setAttribute("selectedReader", reader);
-            logger.debug("Set req attriutes 'lendings' and 'selectedReader'");
+            req.setAttribute("lendings", reader.getLendings());
+            logger.debug("Set req attributes 'lendings' and 'selectedReader'");
+        }
+    }
+
+    /**
+     * Initializes returnBookService that has not already been initialized.
+     */
+    protected void initializeReturnBookService() {
+        if (returnBookService == null) {
+            returnBookService = new ReturnBookService();
+            logger.debug("Initialized returnBookService");
         }
     }
 

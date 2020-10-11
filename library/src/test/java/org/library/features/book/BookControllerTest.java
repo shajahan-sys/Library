@@ -208,7 +208,7 @@ class BookControllerTest {
         when(bookService.getBooksList(login)).thenReturn(books);
         bookController.setProperListOfBooks(req);
         assertAll(
-                () -> verify(bookService).deleteFormMap(login),
+                () -> verify(bookService).deleteFromMap(login),
                 () -> verify(session).removeAttribute("saved"),
                 () -> verify(session).setAttribute("books", books)
         );

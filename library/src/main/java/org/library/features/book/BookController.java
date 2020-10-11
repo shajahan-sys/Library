@@ -24,7 +24,7 @@ import java.util.List;
  * @author Barbara Grabowska
  * @version %I%, %G%
  */
-@WebServlet(urlPatterns = "books")
+@WebServlet(urlPatterns = "/books")
 public class BookController extends HttpServlet {
     private BookService bookService;
     /**
@@ -101,12 +101,8 @@ public class BookController extends HttpServlet {
         HttpSession session = req.getSession();
         Login login = (Login) session.getAttribute("userLogin");
         String button = req.getParameter("button");
-        if (session.getAttribute("saved") != null) {
-            bookService.deleteFormMap(login);
-            session.removeAttribute("saved");
-            logger.debug("Removed list from map and 'saved' attribute");
-        }
         if (button == null) {
+            deleteFromMapIfNeeded(req, "saved", "booksMightHaveChanged");
             session.setAttribute("books", bookService.getBooksList(login));
             logger.debug("Set list of books");
         } else if (button.equals("search")) {
@@ -115,6 +111,22 @@ public class BookController extends HttpServlet {
         }
     }
 
+    /**
+     * Removes session attributes if exist.
+     *
+     * @param req object that contains the request the client has made of the servlet
+     * @param attributeNames Strings that represent names of session attributes to remove
+     */
+    protected void deleteFromMapIfNeeded(HttpServletRequest req, String... attributeNames){
+        HttpSession session = req.getSession();
+        for (String name:attributeNames
+        ) {
+            if (session.getAttribute(name) != null) {
+                bookService.deleteFromMap((Login) session.getAttribute("userLogin"));
+                session.removeAttribute(name);
+            }
+        }
+    }
     /**
      * Sets session attribute named "authorList" which is a  proper list of Author
      * objects using bookService method - getAuthorsList if does not already exist.
@@ -132,8 +144,7 @@ public class BookController extends HttpServlet {
     /**
      * Checks that selected Book object is on a loan using bookService method -
      * - isLendingNull, if so, sets session attributes "reader" and "lendings"
-     * that represents Reader object, who borrowed selected book and
-     * Set of Lending objects that belongs to this reader, respectively.
+     * that represents Reader object, who borrowed selected book.
      * Sends a redirect response to ReturnBookController.
      * Otherwise (when selected book is not on a loan), this method calls
      * printMessage method.
@@ -149,7 +160,6 @@ public class BookController extends HttpServlet {
         if (!bookService.isLendingNull(login, bookId)) {
             Book book = bookService.getBook(login, bookId);
             session.setAttribute("reader", book.getLending().getReader());
-            session.setAttribute("lendings", book.getLending().getReader().getLendings());
             resp.sendRedirect("return-book");
             logger.debug("Sent a redirect response to ReturnBookController");
         } else {
@@ -175,8 +185,9 @@ public class BookController extends HttpServlet {
 
     /**
      * Deletes selected Book object if possible, then sets up-to-date list of Book objects
-     * as "books" session attribute and forwards a request to book.jsp file.
-     * If selected book can not be deleted this method calls printMessage method.
+     * as "books" session attribute and "authorsMightHaveChanged" attribute.
+     * Forwards a request to book.jsp file. If selected book can not be deleted
+     * this method calls printMessage method.
      *
      * @param req  object that contains the request the client has made of the servlet
      * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
@@ -188,6 +199,7 @@ public class BookController extends HttpServlet {
         Login login = (Login) session.getAttribute("userLogin");
         if (bookService.deleteIfPossible(login, Integer.parseInt(req.getParameter("selected")))) {
             session.setAttribute("books", bookService.getBooksList(login));
+            session.setAttribute("authorsMightHaveChanged", true);
             req.getRequestDispatcher("book.jsp").forward(req, resp);
             logger.debug("deleted book");
         } else {

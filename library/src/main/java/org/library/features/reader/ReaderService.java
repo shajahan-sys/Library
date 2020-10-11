@@ -83,6 +83,7 @@ public class ReaderService {
         Reader reader = getReader(login, id);
         if (isReaderLendingSetEmpty(reader)) {
             readerDAO.delete(reader);
+            readersByLogin.put(login, readerDAO.getReadersList(login));
             return true;
         } else {
             setMessage("Cannot delete selected reader. The reader has not returned borrowed books yet.");

@@ -1,13 +1,29 @@
 package org.library.features.book.add_edit;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.library.features.author.Author;
 import org.library.features.book.Book;
+import org.library.features.login.Login;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class AddEditBookControllerTest {
     @Mock
@@ -23,7 +39,7 @@ class AddEditBookControllerTest {
     private final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
     private Book myBook;
 
-    /*@BeforeEach
+    @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         addEditBookController = new AddEditBookController();
@@ -44,7 +60,7 @@ class AddEditBookControllerTest {
         myBook.setTitle("title");
         myBook.setAuthor(new Author(1));
         myBook.setPublicationYear("2020");
-        Book bookActual = addEditBookController.createBookWithProperData(req);
+        Book bookActual = addEditBookController.createObjectWithProperData(req);
         assertAll(
                 () -> assertEquals(bookActual.getTitle(), myBook.getTitle()),
                 () -> assertEquals(bookActual.getAuthor().getId(), myBook.getAuthor().getId()),
@@ -76,7 +92,7 @@ class AddEditBookControllerTest {
         List<Author> list = new ArrayList<>();
         when(req.getSession()).thenReturn(session);
         when(session.getAttribute("authors")).thenReturn(list);
-        addEditBookController.setProperAttributes(req);
+        addEditBookController.setSessionAttribute(req);
         verify(req).setAttribute("authors", list);
     }
 
@@ -88,7 +104,7 @@ class AddEditBookControllerTest {
         when(session.getAttribute("edit")).thenReturn(myBook);
         when(session.getAttribute("authors")).thenReturn(list);
         addEditBookController.doGet(req, resp);
-        addEditBookController.setProperAttributes(req);
+        addEditBookController.setSessionAttribute(req);
         verify(req).setAttribute("edit", myBook);
     }
 
@@ -148,5 +164,4 @@ class AddEditBookControllerTest {
 
 
     }
- */
 }

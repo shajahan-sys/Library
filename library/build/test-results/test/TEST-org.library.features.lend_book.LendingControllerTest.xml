@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.library.features.lend_book.LendingControllerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-10-11T18:04:57" hostname="USER-KOMPUTER" time="2.544">
+  <properties/>
+  <testcase name="test_removeSessionAttributes()" classname="org.library.features.lend_book.LendingControllerTest" time="2.544"/>
+  <system-out><![CDATA[2020-10-11 20:04:59 DEBUG LendingController:167 - Deleted 'selReader' attribute
+2020-10-11 20:04:59 DEBUG LendingController:171 - Deleted 'selBook' attribute
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

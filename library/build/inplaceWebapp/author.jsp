@@ -14,6 +14,7 @@
                 response.sendRedirect("login.jsp");
               }%>
             <div align="left">
+            <c:if test="${authorList.size() > 0}">
                <table border="1" cellpadding="5">
                    <tr>
                        <th>Surname</th>
@@ -38,6 +39,10 @@
                <INPUT TYPE="submit" name="button" VALUE="edit"/>
                <INPUT TYPE="submit" name="button" VALUE="delete"/>
               </form>
+              </c:if>
+               <c:if test="${authorList.size() == 0}">
+                  Add your authors in order to display them.
+               </c:if>
               <form action="authors" method="post">
                 <input type="submit" name="button" value="add new">
                 <input type="submit" name="button" value="menu">

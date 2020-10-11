@@ -2,20 +2,19 @@
 <html>
     <head>
     <meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" >
-        <title>Login Page</title>
+        <title>Menu</title>
     </head>
     <body>
  <%
-                response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-                response.setHeader("Pragma", "no-cache");
-                response.setHeader("Expires", "0");
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
         if(session.getAttribute("userLogin")==null){
-        response.sendRedirect("login.jsp");
-        }
-        %>
-    Welcome ${userLogin.getUserName()}!
+            response.sendRedirect("login");
+        }%>
+    Welcome ${user}!
      <br>
-      <form action="welcome" method="post">
+      <form action="menu" method="post">
            <INPUT TYPE="submit" NAME = "button" VALUE="books" />
            <INPUT TYPE="submit" NAME = "button" VALUE="readers" />
            <INPUT TYPE="submit" NAME = "button" VALUE="authors" />

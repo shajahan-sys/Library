@@ -8,9 +8,19 @@ import org.library.features.book.Book;
 import org.library.features.login.Login;
 import org.library.features.lend_book.Lending;
 import org.library.features.reader.Reader;
-
+/**
+ * This class contains Hibernate configuration for a test-database.
+ * Provides a SessionFactory object.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
 public class HibernateTestUtil {
     private static SessionFactory testSessionFactory;
+
+    /**
+     * Creates a proper SessionFactory object
+     */
     private static void configureTest() {
         Configuration configuration = new Configuration().configure("hibernate-test.cfg.xml");
         configuration.addAnnotatedClass(Author.class);
@@ -21,6 +31,10 @@ public class HibernateTestUtil {
         StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
         testSessionFactory = configuration.buildSessionFactory(builder.build());
     }
+
+    /**
+     * @return SessionFactory object
+     */
     public static SessionFactory getTestSessionFactory() {
         configureTest();
         return testSessionFactory;

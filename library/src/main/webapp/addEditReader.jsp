@@ -22,7 +22,7 @@
           response.sendRedirect("login.jsp");
           }
         %>
-              <form name="myForm" action="add-edit-reader" method="post">
+             <form name="myForm" action="add-edit-reader" method="post">
                 <c:choose>
                   <c:when test="${edit != null}">
                      Edit Reader<br>
@@ -38,7 +38,6 @@
                  <input type="submit" name="button" onclick="return validateForm()" value="save"/>
                   <input type="submit" name="button" value="cancel"/>
                </form>
-            </div>
              <script>
               function validateForm() {
               var x = document.forms["myForm"]["name"].value;

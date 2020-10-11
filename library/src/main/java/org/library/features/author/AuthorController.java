@@ -38,7 +38,7 @@ public class AuthorController extends HttpServlet {
      * @param req  HttpServletRequest object that contains the request the client has made of the servlet
      * @param resp HttpServletResponse object that contains the response the servlet sends to the client
      * @throws ServletException if an input or output error is detected when the servlet handles the GET request
-     * @throws IOException      if the request for the GET could not be handled
+     * @throws IOException if the request for the GET could not be handled
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -97,7 +97,7 @@ public class AuthorController extends HttpServlet {
      * @param req  object that contains the request the client has made of the servlet
      * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
      * @throws ServletException if an input or output error is detected when the servlet handles the request
-     * @throws IOException      if an I/O exception of some sort has occurred
+     * @throws IOException if an I/O exception of some sort has occurred
      */
     protected void deleteAction(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         HttpSession session = req.getSession();
@@ -137,14 +137,27 @@ public class AuthorController extends HttpServlet {
     protected void setProperAttributes(HttpServletRequest req) {
         HttpSession session = req.getSession();
         Login login = (Login) session.getAttribute("userLogin");
-        if (session.getAttribute("saved") != null) {
-            authorService.deleteFromMap(login);
-            session.removeAttribute("saved");
-        }
+        deleteFromMapIfNeeded(req, "saved", "authorsMightHaveChanged");
         session.setAttribute("authorList", authorService.getAuthorList(login));
         logger.debug("Got list of authors");
     }
 
+    /**
+     * Removes session attributes if exist.
+     *
+     * @param req object that contains the request the client has made of the servlet
+     * @param attributeNames Strings that represent names of session attributes to remove
+     */
+    protected void deleteFromMapIfNeeded(HttpServletRequest req, String... attributeNames){
+        HttpSession session = req.getSession();
+        for (String name:attributeNames
+             ) {
+            if (session.getAttribute(name) != null) {
+                authorService.deleteFromMap((Login) session.getAttribute("userLogin"));
+                session.removeAttribute(name);
+            }
+        }
+    }
     /**
      * Initializes readerService that has not already been initialized.
      */
