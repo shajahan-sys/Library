@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 /**
  * Service class that contains business logic for return_book feature. Enables Controller class
  * to get demanded objects and to delete Lending objects using ReturnBookDAO instance.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
  */
 public class ReturnBookService {
     private ReturnBookDAO returnBookDAO;
