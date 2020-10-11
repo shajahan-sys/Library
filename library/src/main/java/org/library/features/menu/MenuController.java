@@ -1,6 +1,9 @@
 package org.library.features.menu;
 
 import org.library.features.login.Login;
+import org.library.features.return_book.ReturnBookController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,6 +25,11 @@ import java.io.IOException;
 @WebServlet(urlPatterns = "/menu")
 public class MenuController extends HttpServlet {
     /**
+     * Logger instance for this class
+     */
+    private final Logger logger = LoggerFactory.getLogger(MenuController.class);
+
+    /**
      * Overrides doGet method. Forwards a request from a servlet to a JSP file,
      * sets login object username as a session attribute "user".
      *
@@ -36,6 +44,7 @@ public class MenuController extends HttpServlet {
         Login login = (Login) session.getAttribute("userLogin");
         session.setAttribute("user", login.getUserName());
         req.getRequestDispatcher("menu.jsp").forward(req, resp);
+        logger.debug("doGet");
     }
 
     /**
@@ -68,5 +77,6 @@ public class MenuController extends HttpServlet {
             default:
                 throw new IllegalArgumentException("Wrong button value!");
         }
+        logger.debug("doPost");
     }
 }
