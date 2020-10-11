@@ -30,33 +30,33 @@
                          </select>
                           <input type ="submit" name="button" value="submit">
                  </form>
-                                           <%if(isSelected){%>
+                 <%if(isSelected){%>
                    <div align="left">
                      <table border="1" cellpadding="5">
-                                   <tr>
-                                 <th>Title</th>
-                                 <th>Return Date</th>
-                                 <th>Returned</th>
-                                  </tr>
-                               <form action="return-book" method="post">
-                                  <c:forEach var="lending" items="${lendings}">
-                                   <tr>
-                                   <c:choose>
-                                    <c:when test="${lendings.size() == 1}">
-                                    <td><c:out value="${lendings.iterator().next().getBook().getTitle()}" /></td>
-                                    <td><c:out value="${lendings.iterator().next().getReturnDate()}" /></td>
-                                    <td><input type="radio" name ="selected" value="${lendings.iterator().next().getId()}" required/></td>
-                                    </c:when>
-                                    <c:otherwise>
-                                    <td><c:out value="${lending.getBook().getTitle()}" /></td>
-                                    <td><c:out value="${lending.getReturnDate()}" /></td>
-                                    <td><input type="radio" name ="selected" value="${lending.getId()}" required/></td>
-                                 </c:otherwise>
-                                   </c:choose>
-                                   </tr>
-                              </c:forEach>
-                          </table>
-                     <INPUT TYPE="submit" name="button" VALUE="return"/>
+                        <tr>
+                      <th>Title</th>
+                      <th>Return Date</th>
+                      <th>Returned</th>
+                       </tr>
+                    <form action="return-book" method="post">
+                       <c:forEach var="lending" items="${lendings}">
+                        <tr>
+                        <c:choose>
+                         <c:when test="${lendings.size() == 1}">
+                         <td><c:out value="${lendings.iterator().next().getBook().getTitle()}" /></td>
+                         <td><c:out value="${lendings.iterator().next().getReturnDate()}" /></td>
+                         <td><input type="radio" name ="selected" value="${lendings.iterator().next().getId()}" required/></td>
+                         </c:when>
+                         <c:otherwise>
+                         <td><c:out value="${lending.getBook().getTitle()}" /></td>
+                         <td><c:out value="${lending.getReturnDate()}" /></td>
+                         <td><input type="radio" name ="selected" value="${lending.getId()}" required/></td>
+                      </c:otherwise>
+                        </c:choose>
+                    </tr>
+                    </c:forEach>
+                   </table>
+                  <INPUT TYPE="submit" name="button" VALUE="return"/>
                  </form><%}
                  else{%>
                  Select reader that wants to return book
