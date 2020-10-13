@@ -7,10 +7,11 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
+
 @Entity
 @Table(name = "lending")
 public class Lending implements Serializable {
-    private static final long serialVersionUID =12343L;
+    private static final long serialVersionUID = 12343L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
