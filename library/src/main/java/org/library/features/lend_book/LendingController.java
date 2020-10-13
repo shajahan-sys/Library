@@ -55,7 +55,7 @@ public class LendingController extends HttpServlet {
      *
      * @param req  object that contains the request the client has made of the servlet
      * @param resp an HttpServletResponse object that contains the response the servlet sends to the client
-     * @throws IOException      if the request for the POST could not be handled
+     * @throws IOException if the request for the POST could not be handled
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -75,7 +75,7 @@ public class LendingController extends HttpServlet {
     }
 
     /**
-     * Sets session attributes "avbBooks" and "myReaders" using lendingService
+     * Sets session attributes "avbBooks" and "readers" using lendingService
      * methods - getAvailableBooksList and getReadersList respectively.
      *
      * @param req object that contains the request the client has made of the servlet
@@ -84,7 +84,9 @@ public class LendingController extends HttpServlet {
         HttpSession session = req.getSession();
         Login login = (Login) session.getAttribute("userLogin");
         session.setAttribute("avbBooks", lendingService.getAvailableBooksList(login));
-        session.setAttribute("myReaders", lendingService.getReadersList(login));
+        if (session.getAttribute("readers") == null) {
+              session.setAttribute("readers", lendingService.getReadersList(login));
+        }
         logger.debug("Set session attributes");
     }
 
@@ -158,7 +160,7 @@ public class LendingController extends HttpServlet {
     /**
      * Removes session attributes "selReader" and "selBook" if they exist
      *
-     * @param req  object that contains the request the client has made of the servlet
+     * @param req object that contains the request the client has made of the servlet
      */
     protected void removeSessionAttributes(HttpServletRequest req) {
         HttpSession session = req.getSession();
@@ -171,6 +173,7 @@ public class LendingController extends HttpServlet {
             logger.debug("Deleted 'selBook' attribute");
         }
     }
+
     /**
      * @param lendingService lendingService to set
      */
