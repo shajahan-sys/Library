@@ -36,7 +36,7 @@ class LendingServiceTest {
         login = new Login();
         lendingService.setLendingDAO(lendingDAO);
         when(lendingDAO.getReadersList(login)).thenReturn(readers);
-        when(lendingDAO.getAvailableBooksList(login)).thenReturn(bookList);
+        when(lendingDAO.getAllBooks(login)).thenReturn(bookList);
 
     }
 

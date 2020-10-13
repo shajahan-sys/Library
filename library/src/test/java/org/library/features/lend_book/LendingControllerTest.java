@@ -124,7 +124,7 @@ class LendingControllerTest {
         lendingController.setAttributes(req);
         assertAll(
                 () -> verify(session).setAttribute("avbBooks", books),
-                () -> verify(session).setAttribute("myReaders", readers)
+                () -> verify(session).setAttribute("readers", readers)
         );
     }
 

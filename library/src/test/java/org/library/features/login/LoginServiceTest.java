@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 class LoginServiceTest {
     private Login login;
     private LoginService loginService;
-    private LoginDao loginDao;
+    private LoginDAO loginDao;
     @Mock
     private LoginDAOImpl loginDaoImpl;
 
@@ -41,7 +41,7 @@ class LoginServiceTest {
         when(loginDao.getHashedPassword(login)).thenReturn(hashed);
         assertAll(
                 () -> assertTrue(loginService.isLoginInputCorrect(login)),
-                () -> assertEquals(login.getPassword(), "not storing real pass")
+                () -> assertEquals(login.getPassword(), "not storing a real pass")
         );
 
     }
@@ -61,7 +61,7 @@ class LoginServiceTest {
         loginService.createNewAccount(login);
         assertAll(
                 () -> verify(loginDao).saveNewAccount(login),
-                () -> assertEquals(login.getPassword(), "not storing real pass")
+                () -> assertEquals(login.getPassword(), "not storing a real pass")
         );
     }
 
@@ -70,7 +70,7 @@ class LoginServiceTest {
         when(loginDao.doesUserAlreadyExist(login)).thenReturn(false);
         assertAll(
                 () -> assertFalse(loginService.loginIfPossible(login, "login")),
-                () -> assertEquals(loginService.getMessage(), "There is no user with such a name")
+                () -> assertEquals(loginService.getMessage(), "There is no user with such a login")
         );
     }
 

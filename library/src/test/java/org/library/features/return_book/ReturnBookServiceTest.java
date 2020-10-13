@@ -51,15 +51,8 @@ class ReturnBookServiceTest {
     @Test
     void test_getReader() {
        createProperListOfReaders();
-        when(returnBookDAO.getReadersList(login)).thenReturn(readers);
+        when(returnBookDAO.getActiveReadersList(login)).thenReturn(readers);
         assertEquals(returnBookService.getReader(login, 1), readers.get(0));
-    }
-
-    @Test
-    void test_getActiveReadersList() {
-        createProperListOfReaders();
-        when(returnBookDAO.getReadersList(login)).thenReturn(readers);
-        assertEquals(returnBookService.getActiveReadersList(login).size(), 2);
     }
 
     private void createProperListOfReaders() {
