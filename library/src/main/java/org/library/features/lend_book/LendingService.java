@@ -51,7 +51,7 @@ public class LendingService {
     protected List<Book> getAvailableBooksList(Login login) {
         initializeLendingDAO();
         logger.debug("Got available Books list");
-        return lendingDAO.getAvailableBooksList(login).stream()
+        return lendingDAO.getAllBooks(login).stream()
                 .filter(book -> book.getLending() == null)
                 .collect(Collectors.toList());
     }
@@ -64,6 +64,7 @@ public class LendingService {
      * @return List of Reader objects that is linked to login parameter
      */
     protected List<Reader> getReadersList(Login login) {
+      //  initializeLendingDAO();
         logger.debug("Got readers");
         return lendingDAO.getReadersList(login);
     }

@@ -55,7 +55,7 @@ public class LendingDAOImpl implements LendingDAO {
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.save(lending);
+            session.saveOrUpdate(lending);
             tx.commit();
         } catch (HibernateException e) {
             logger.error(e.getMessage());
