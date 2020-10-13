@@ -1,19 +1,28 @@
 package org.library.features.author;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.library.features.book.BookDAOImpl;
 import org.library.features.login.Login;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class AuthorDAOImpl implements AuthorDAO{
+/**
+ * AuthorDAO implementation.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
+public class AuthorDAOImpl implements AuthorDAO {
     private SessionFactory sessionFactory;
-    private Logger logger = LogManager.getLogger(AuthorDAOImpl.class);
+    /**
+     * Logger instance for this class
+     */
+    private final Logger logger = LoggerFactory.getLogger(AuthorDAOImpl.class);
+
     @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -21,47 +30,28 @@ public class AuthorDAOImpl implements AuthorDAO{
 
     @Override
     public List<Author> getAuthorsList(Login login) {
-        List authors;
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            authors = session.createQuery("from Author where user_id = :id order by surname")
-                    .setParameter("id", login.getId())
-                    .getResultList();
-            transaction.commit();
-        } catch (RuntimeException e) {
-            logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
-        }
+        Session session = sessionFactory.openSession();
+        List<Author> authors = session.createQuery("from Author where user_id = :id order by surname")
+                .setParameter("id", login.getId())
+                .list();
+        session.close();
         return authors;
     }
 
     @Override
     public void delete(Author author) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            author = session.get(Author.class, author.getId());
-            if (author != null) {
-                session.delete(author);
-            }
-            transaction.commit();
-        } catch (RuntimeException e) {
+        Session session = sessionFactory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.delete(author);
+            tx.commit();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
-    }}
+    }
+}
