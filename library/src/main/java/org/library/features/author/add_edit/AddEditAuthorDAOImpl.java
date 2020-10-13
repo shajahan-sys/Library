@@ -1,16 +1,26 @@
 package org.library.features.author.add_edit;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.library.features.author.Author;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class AddEditAuthorDAOImpl implements AddEditAuthorDAO{
+/**
+ * AddEditAuthorDAO implementation.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
+public class AddEditAuthorDAOImpl implements AddEditAuthorDAO {
     private SessionFactory sessionFactory;
-    private Logger logger = LogManager.getLogger(AddEditAuthorDAOImpl.class);
+    /**
+     * Logger instance for this class
+     */
+    private final Logger logger = LoggerFactory.getLogger(AddEditAuthorDAOImpl.class);
+
     @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -18,24 +28,18 @@ public class AddEditAuthorDAOImpl implements AddEditAuthorDAO{
 
     @Override
     public void save(Author author) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            if (author != null) {
-                session.saveOrUpdate(author);
-            }
-            transaction.commit();
-
-        } catch (RuntimeException e) {
+        Session session = sessionFactory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.saveOrUpdate(author);
+            tx.commit();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
     }
 }
