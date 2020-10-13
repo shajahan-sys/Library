@@ -8,8 +8,17 @@ import org.library.features.reader.Reader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * AddEditReaderDAO implementation.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
 public class AddEditReaderDAOImpl implements AddEditReaderDAO {
     private SessionFactory sessionFactory;
+    /**
+     * Logger instance for this class
+     */
     private static final Logger logger = LoggerFactory.getLogger(AddEditReaderDAOImpl.class);
 
     @Override
@@ -19,29 +28,17 @@ public class AddEditReaderDAOImpl implements AddEditReaderDAO {
 
     @Override
     public void save(Reader reader) {
-        Transaction transaction = null;
-        Session session = null;
+        Session session = sessionFactory.openSession();
+        Transaction tx = null;
         try {
-            session = sessionFactory.openSession();
-            transaction = session.getTransaction();
-            transaction.begin();
-            if (reader != null) {
-                session.saveOrUpdate(reader);
-            }
-            transaction.commit();
-
-        } catch (Exception e) {
+            tx = session.beginTransaction();
+            session.saveOrUpdate(reader);
+            tx.commit();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
-        }
-        finally {
-            assert session != null;
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
             session.close();
         }
     }
