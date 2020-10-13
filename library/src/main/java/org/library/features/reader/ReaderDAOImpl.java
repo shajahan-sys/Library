@@ -1,18 +1,23 @@
 package org.library.features.reader;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.library.features.login.Login;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-public class ReaderDAOImpl implements ReaderDAO{
+/**
+ * ReaderDAO implementation.
+ *
+ * @author Barbara Grabowska
+ * @version %I%, %G%
+ */
+public class ReaderDAOImpl implements ReaderDAO {
     private SessionFactory sessionFactory;
-    private final Logger logger = LogManager.getLogger(ReaderDAOImpl.class);
+    /**
+     * Logger instance for this class
+     */
+    private final Logger logger = LoggerFactory.getLogger(ReaderDAOImpl.class);
 
     @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
@@ -21,55 +26,28 @@ public class ReaderDAOImpl implements ReaderDAO{
 
     @Override
     public List<Reader> getReadersList(Login login) {
-        List readers;
-        Transaction transaction = null;
-        Session session = null;
-        try{
-        session = sessionFactory.openSession();
-            transaction = session.getTransaction();
-            transaction.begin();
-            readers = session.createQuery("from Reader where user_id = :id order by surname")
-                    .setParameter("id", login.getId())
-                    .getResultList();
-            transaction.commit();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
-        }
-        finally {
-            assert session != null;
-            session.close();
-        }
+        Session session = sessionFactory.openSession();
+        List<Reader> readers = session.createQuery("from Reader where user_id = :id order by surname")
+                .setParameter("id", login.getId())
+                .list();
+        session.close();
         return readers;
     }
 
     @Override
     public void delete(Reader reader) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.getTransaction();
-            transaction.begin();
-            reader = session.get(Reader.class, reader.getId());
-            if (reader != null) {
-                session.delete(reader);
-            }
-            transaction.commit();
-        } catch (RuntimeException e) {
+        Session session = sessionFactory.openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.delete(reader);
+            tx.commit();
+        } catch (HibernateException e) {
             logger.error(e.getMessage());
-            try {
-                if (transaction != null)
-                    transaction.rollback();
-            } catch (HibernateException e1) {
-                logger.error("Transaction rollback not successful");
-            }
-            throw e;
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
         }
     }
-
 }
