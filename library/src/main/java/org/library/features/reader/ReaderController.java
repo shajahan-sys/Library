@@ -169,7 +169,6 @@ public class ReaderController extends HttpServlet {
         Login login = (Login) session.getAttribute("userLogin");
         deleteFromMapIfNeeded(req, "saved", "readersMightHaveChanged");
         session.setAttribute("readers", readerService.getReadersList(login));
-        System.out.println(readerService.getReadersList(login).size());
         logger.debug("Set session attribute readers");
     }
     /**

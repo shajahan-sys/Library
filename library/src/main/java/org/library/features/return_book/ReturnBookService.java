@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service class that contains business logic for return_book feature. Enables Controller class
@@ -26,8 +25,7 @@ public class ReturnBookService {
 
 
     /**
-     * Gets active readers List, by getting list of all readers that belongs to given
-     * login, then filters it to find readers that have at least one borrowed book.
+     * Gets active readers List using returnBookDAO getActiveReadersList method
      *
      * @param login Login object that contains user's login data
      * @return list of readers that have at least one book borrowed currently
@@ -35,8 +33,7 @@ public class ReturnBookService {
     protected List<Reader> getActiveReadersList(Login login) {
         initializeDAO();
         logger.debug("Got active readers list");
-        return returnBookDAO.getReadersList(login).stream().filter(
-                reader -> reader.getLendings().size() != 0).collect(Collectors.toList());
+        return returnBookDAO.getActiveReadersList(login);
     }
 
     /**
