@@ -116,6 +116,7 @@ public class BookService {
     protected boolean deleteIfPossible(Login login, int id) {
         Book book = getBook(login, id);
         if (book.getLending() == null) {
+            initializeDAO();
             bookDAO.delete(book);
             booksByLogin.put(login, bookDAO.getBooksList(login));
             logger.debug("Deleted a book");
