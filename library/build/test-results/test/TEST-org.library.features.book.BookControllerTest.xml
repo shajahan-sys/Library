@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.library.features.book.BookControllerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2020-10-11T19:00:28" hostname="USER-KOMPUTER" time="1.47">
-  <properties/>
-  <testcase name="test_returnAction_when_lending_is_not_null()" classname="org.library.features.book.BookControllerTest" time="1.47"/>
-  <system-out><![CDATA[2020-10-11 21:00:29 DEBUG BookController:164 - Sent a redirect response to ReturnBookController
-]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
