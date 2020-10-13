@@ -12,7 +12,7 @@ import org.mindrot.jbcrypt.BCrypt;
  * @version %I%, %G%
  */
 public class LoginService {
-    private LoginDao loginDao;
+    private LoginDAO loginDao;
     /**
      * Represents text that contains information why chosen action can not be executed
      */
@@ -36,16 +36,18 @@ public class LoginService {
             case "login":
                 if (loginDao.doesUserAlreadyExist(login)) {
                     return isLoginInputCorrect(login);
+                } else {
+                    setMessage("There is no user with such a login");
+                    return false;
                 }
-                setMessage("There is no user with such a name");
-                return false;
             case "create":
                 if (!loginDao.doesUserAlreadyExist(login)) {
                     createNewAccount(login);
                     return true;
+                } else {
+                    setMessage("User already exists, try different name");
+                    return false;
                 }
-                setMessage("User already exists, try different name");
-                return false;
             default:
                 throw new IllegalArgumentException("Wrong action name");
         }
@@ -72,7 +74,7 @@ public class LoginService {
 
     public boolean isLoginInputCorrect(Login login) {
         if (BCrypt.checkpw(login.getPassword(), loginDao.getHashedPassword(login))) {
-            login.setPassword("not storing real pass");
+            login.setPassword("not storing a real pass");
             return true;
         } else {
             setMessage("Wrong password!");
@@ -89,7 +91,7 @@ public class LoginService {
     protected void createNewAccount(Login login) {
         login.setPassword(hashPassword(login.getPassword()));
         loginDao.saveNewAccount(login);
-        login.setPassword("not storing real pass");
+        login.setPassword("not storing a real pass");
     }
 
     /**
@@ -130,7 +132,7 @@ public class LoginService {
     /**
      * @param loginDao object to be set
      */
-    public void setLoginDao(LoginDao loginDao) {
+    public void setLoginDao(LoginDAO loginDao) {
         this.loginDao = loginDao;
     }
 }
