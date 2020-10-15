@@ -124,6 +124,7 @@ public class BookController extends HttpServlet {
             if (session.getAttribute(name) != null) {
                 bookService.deleteFromMap((Login) session.getAttribute("userLogin"));
                 session.removeAttribute(name);
+                break;
             }
         }
     }

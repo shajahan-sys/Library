@@ -155,6 +155,7 @@ public class AuthorController extends HttpServlet {
             if (session.getAttribute(name) != null) {
                 authorService.deleteFromMap((Login) session.getAttribute("userLogin"));
                 session.removeAttribute(name);
+                break;
             }
         }
     }

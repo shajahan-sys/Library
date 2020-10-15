@@ -148,7 +148,6 @@ public class ReaderController extends HttpServlet {
         int readerId = Integer.parseInt(req.getParameter("selected"));
         if (!readerService.isReaderLendingSetEmpty(login, readerId)) {
             Reader reader = readerService.getReader(login, readerId);
-        //    session.setAttribute("lendings", reader.getLendings());
             session.setAttribute("reader", reader);
             resp.sendRedirect("return-book");
             logger.debug("Sent a redirect response to ReturnBookController");
@@ -184,6 +183,7 @@ public class ReaderController extends HttpServlet {
             if (session.getAttribute(name) != null) {
                 readerService.deleteFromMap((Login) session.getAttribute("userLogin"));
                 session.removeAttribute(name);
+                break;
             }
         }
     }
