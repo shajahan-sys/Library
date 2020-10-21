@@ -7,16 +7,17 @@
         <!-- Database connection settings -->
         <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
         <property name="hibernate.connection.url">
-            jdbc:mysql://localhost:3306/library</property>
-        <property name="connection.username">root</property>
-        <property name="connection.password">root</property>
+            jdbc:mysql://localhost:3306/library
+        </property>
+        <property name="connection.username">""</property>
+        <property name="connection.password">""</property>
         <property name="show_sql">true</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hbm2ddl.auto">update</property>
-        <mapping class="com.library.features.author.Author" />
-        <mapping class="com.library.features.book.Book" />
-        <mapping class="com.library.features.lend_book.Lending" />
-        <mapping class="com.library.features.reader.Reader" />
-        <mapping class="com.library.features.login.Login" />
+        <mapping class="com.library.features.author.Author"/>
+        <mapping class="com.library.features.book.Book"/>
+        <mapping class="com.library.features.lend_book.Lending"/>
+        <mapping class="com.library.features.reader.Reader"/>
+        <mapping class="com.library.features.login.Login"/>
     </session-factory>
 </hibernate-configuration>
