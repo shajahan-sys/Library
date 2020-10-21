@@ -13,10 +13,10 @@
         <property name="show_sql">true</property>
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hbm2ddl.auto">update</property>
-        <mapping class="org.library.features.author.Author" />
-        <mapping class="org.library.features.book.Book" />
-        <mapping class="org.library.features.lend_book.Lending" />
-        <mapping class="org.library.features.reader.Reader" />
-        <mapping class="org.library.features.login.Login" />
+        <mapping class="com.library.features.author.Author" />
+        <mapping class="com.library.features.book.Book" />
+        <mapping class="com.library.features.lend_book.Lending" />
+        <mapping class="com.library.features.reader.Reader" />
+        <mapping class="com.library.features.login.Login" />
     </session-factory>
 </hibernate-configuration>
