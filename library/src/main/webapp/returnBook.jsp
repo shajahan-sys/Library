@@ -21,9 +21,9 @@ response.sendRedirect("login.jsp");
     Reader : <select name="selReader">
     <option value="no reader">select reader</option>
     <c:forEach var="reader" items="${activeReaders}">
-        <option value="${reader.getId()}">
+        <option value="${reader.getId()}"
             <%if(isSelected){%>
-            ${reader.getId() == selectedReader.getId() ? 'selected="selected"' : ''}<%}%>
+            ${reader.getId() == selectedReader.getId() ? 'selected="selected"' : ''}<%}%>>
             ${reader.getSurname()} ${reader.getName()}
         </option>
     </c:forEach>
